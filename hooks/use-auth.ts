@@ -28,10 +28,9 @@ export function useAuth(options?: UseAuthOptions) {
         if (apiUser) {
           const userInfo: Auth.User = {
             id: apiUser.id,
-            openId: apiUser.openId,
+            deviceId: apiUser.deviceId,
             name: apiUser.name,
-            email: apiUser.email,
-            loginMethod: apiUser.loginMethod,
+            role: apiUser.role,
             lastSignedIn: new Date(apiUser.lastSignedIn),
           };
           setUser(userInfo);

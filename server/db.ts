@@ -19,8 +19,8 @@ export async function getDb() {
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
+  if (!user.deviceId) {
+    throw new Error("User deviceId is required for upsert");
   }
 
   const db = await getDb();
@@ -31,22 +31,22 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   try {
     const values: InsertUser = {
-      openId: user.openId,
+      deviceId: user.deviceId,
     };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
+    // Handle pinHash
+    if (user.pinHash !== undefined) {
+      values.pinHash = user.pinHash;
+      updateSet.pinHash = user.pinHash;
+    }
 
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
+    // Handle name
+    if (user.name !== undefined) {
+      const normalized = user.name ?? null;
+      values.name = normalized;
+      updateSet.name = normalized;
+    }
 
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
@@ -55,9 +55,6 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     if (user.role !== undefined) {
       values.role = user.role;
       updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = "admin";
-      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -77,16 +74,45 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 }
 
-export async function getUserByOpenId(openId: string) {
+export async function getUserByDeviceId(deviceId: string) {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get user: database not available");
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db.select().from(users).where(eq(users.deviceId, deviceId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUser(
+  deviceId: string,
+  pinHash: string,
+  name?: string,
+  role?: "user" | "admin"
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.insert(users).values({
+    deviceId,
+    pinHash,
+    name: name ?? null,
+    role: role ?? "user",
+    lastSignedIn: new Date(),
+  });
+}
+
+export async function updateUserPin(deviceId: string, pinHash: string): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(users).set({ pinHash }).where(eq(users.deviceId, deviceId));
 }
 
 // TODO: add feature queries here as your schema grows.

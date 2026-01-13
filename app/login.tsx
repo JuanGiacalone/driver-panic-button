@@ -1,58 +1,51 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Platform, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import { ScreenContainer } from "@/components/screen-container";
+import { PinInput } from "@/components/pin-input";
 import { useAuth } from "@/hooks/use-auth";
 import { useColors } from "@/hooks/use-colors";
-import * as Haptics from "expo-haptics";
-
-const OAUTH_PORTAL_URL = process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL;
-const APP_ID = process.env.EXPO_PUBLIC_APP_ID;
-
-WebBrowser.maybeCompleteAuthSession();
+import * as PinApi from "@/lib/_core/api-pin";
+import * as Auth from "@/lib/_core/auth";
 
 export default function LoginScreen() {
   const colors = useColors();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, refresh } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState("");
+  const [pinError, setPinError] = useState(false);
 
-  const handleLogin = async () => {
-    if (!OAUTH_PORTAL_URL || !APP_ID) {
-      setError("OAuth configuration missing");
-      return;
-    }
-
+  const handlePinComplete = async (pin: string) => {
     setError("");
+    setPinError(false);
     setIsLoggingIn(true);
-    
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
 
     try {
-      if (Platform.OS === "web") {
-        // Web: redirect to OAuth portal
-        const redirectUri = `${window.location.origin}/oauth/callback`;
-        const authUrl = `${OAUTH_PORTAL_URL}?appId=${APP_ID}&redirectUri=${encodeURIComponent(redirectUri)}`;
-        window.location.href = authUrl;
-      } else {
-        // Native: open OAuth in browser
-        const redirectUri = `exp://`;
-        const authUrl = `${OAUTH_PORTAL_URL}?appId=${APP_ID}&redirectUri=${encodeURIComponent(redirectUri)}`;
-        
-        const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-        
-        if (result.type === "success") {
-          // OAuth callback will handle the rest
-          router.replace("/(tabs)");
-        } else {
-          setError("Login cancelled");
-        }
+      const result = await PinApi.loginWithPin(pin);
+
+      // Store session token and user info
+      if (result.sessionToken) {
+        await Auth.setSessionToken(result.sessionToken);
       }
+
+      if (result.user) {
+        const userInfo: Auth.User = {
+          id: result.user.id,
+          deviceId: result.user.deviceId,
+          name: result.user.name,
+          role: result.user.role,
+          lastSignedIn: new Date(result.user.lastSignedIn),
+        };
+        await Auth.setUserInfo(userInfo);
+      }
+
+      // Refresh auth state and redirect
+      await refresh();
+      router.replace("/(tabs)");
     } catch (err) {
+      console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "Login failed");
+      setPinError(true);
     } finally {
       setIsLoggingIn(false);
     }
@@ -90,35 +83,47 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        {/* Login Button */}
-        <View className="gap-4">
+        {/* PIN Input */}
+        <View className="gap-6">
+          <View className="items-center">
+            <Text className="text-xl font-semibold text-foreground mb-2">
+              Enter Your PIN
+            </Text>
+            <Text className="text-sm text-muted text-center mb-6">
+              Enter the 6-digit PIN assigned by your administrator
+            </Text>
+
+            <PinInput
+              length={6}
+              onComplete={handlePinComplete}
+              error={pinError}
+            />
+          </View>
+
+          {/* Error Message */}
           {error ? (
             <View className="bg-error/10 border border-error rounded-xl p-3">
               <Text className="text-error text-sm text-center">{error}</Text>
             </View>
           ) : null}
 
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={isLoggingIn}
-            className="bg-primary rounded-xl py-4 items-center"
-            style={({ pressed }: { pressed: boolean }) => ({
-              opacity: pressed || isLoggingIn ? 0.8 : 1,
-              transform: [{ scale: pressed ? 0.97 : 1 }],
-            })}
-          >
-            {isLoggingIn ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text className="text-white text-base font-semibold">
-                Sign In with Manus
-              </Text>
-            )}
-          </TouchableOpacity>
+          {/* Loading Indicator */}
+          {isLoggingIn ? (
+            <View className="items-center">
+              <ActivityIndicator color={colors.primary} />
+              <Text className="text-muted text-sm mt-2">Authenticating...</Text>
+            </View>
+          ) : null}
 
-          <Text className="text-muted text-xs text-center mt-4">
-            You'll be redirected to Manus OAuth to sign in securely
-          </Text>
+          {/* Help Text */}
+          <View className="mt-8">
+            <Text className="text-muted text-xs text-center">
+              Don't have a PIN? Contact your administrator
+            </Text>
+            <Text className="text-muted text-xs text-center mt-2">
+              Development: Use device ID "dev-device-user" with PIN 123456
+            </Text>
+          </View>
         </View>
       </View>
     </ScreenContainer>

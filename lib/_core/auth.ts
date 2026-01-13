@@ -1,13 +1,12 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { SESSION_TOKEN_KEY, USER_INFO_KEY } from "@/constants/oauth";
+import { SESSION_TOKEN_KEY, USER_INFO_KEY } from "@/constants/const";
 
 export type User = {
   id: number;
-  openId: string;
+  deviceId: string;
   name: string | null;
-  email: string | null;
-  loginMethod: string | null;
+  role: string | null;
   lastSignedIn: Date;
 };
 

@@ -3,5 +3,5 @@ ALTER TABLE `users` ADD `deviceId` varchar(255) NOT NULL;--> statement-breakpoin
 ALTER TABLE `users` ADD `pinHash` varchar(255) NOT NULL;--> statement-breakpoint
 ALTER TABLE `users` ADD CONSTRAINT `users_deviceId_unique` UNIQUE(`deviceId`);--> statement-breakpoint
 ALTER TABLE `users` DROP COLUMN `openId`;--> statement-breakpoint
-ALTER TABLE `users` DROP COLUMN `email`;--> statement-breakpoint
+ALTER TABLE `users` ADD `email` varchar(255) NOT NULL;--> statement-breakpoint
 ALTER TABLE `users` DROP COLUMN `loginMethod`;

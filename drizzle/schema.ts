@@ -1,36 +1,22 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, primaryKey, unique, int, varchar, text, timestamp, mysqlEnum } from "drizzle-orm/mysql-core"
+import { sql } from "drizzle-orm"
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
-  id: int("id").autoincrement().primaryKey(),
-  /** Unique device identifier. Each device is linked to one user account. */
-  deviceId: varchar("deviceId", { length: 255 }).notNull().unique(),
-  /** Unique username for login. */
-  username: varchar("username", { length: 100 }).notNull().unique(),
-  /** Bcrypt hash of the user's 6-digit PIN. */
-  pinHash: varchar("pinHash", { length: 255 }).notNull(),
-  /** Optional display name for the user. */
-  name: text("name"),
-  /** Whether the user's subscription is active (controlled by admin). */
-  isActive: int("isActive").default(0).notNull(),
-  /** Last subscription payment date (controlled by admin). */
-  lastPaymentDate: timestamp("lastPaymentDate"),
-  /** User role: 'user' or 'admin'. */
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-});
-
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-
-// TODO: Add your tables here
+	id: int().autoincrement().notNull(),
+	deviceId: varchar({ length: 255 }).notNull(),
+	username: varchar({ length: 100 }).notNull(),
+	pinHash: varchar({ length: 255 }).notNull(),
+	name: varchar({ length: 100 }).notNull(),
+	email: varchar({ length: 100 }).notNull(),
+	isActive: int().default(0).notNull(),
+	lastPaymentDate: timestamp({ mode: 'string' }),
+	role: mysqlEnum(['user', 'admin']).default('user').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default(sql`(now())`).notNull(),
+	updatedAt: timestamp({ mode: 'string' }).default(sql`(now())`).onUpdateNow().notNull(),
+	lastSignedIn: timestamp({ mode: 'string' }).default(sql`(now())`).notNull(),
+},
+	(table) => [
+		primaryKey({ columns: [table.id], name: "users_id" }),
+		unique("users_deviceId_unique").on(table.deviceId),
+		unique("users_username_unique").on(table.username),
+	]);

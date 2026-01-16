@@ -25,11 +25,11 @@ function getApiBaseUrl(): string {
 /**
  * Login with PIN.
  */
-export async function loginWithPin(pin: string) {
+export async function loginWithPin(username: string, pin: string) {
     const deviceId = await getDeviceId();
     const apiBaseUrl = getApiBaseUrl();
 
-    console.log("[PIN-API] loginWithPin:", { deviceId, apiBaseUrl });
+    console.log("[PIN-API] loginWithPin:", { username, deviceId, apiBaseUrl });
 
     const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: "POST",
@@ -37,7 +37,7 @@ export async function loginWithPin(pin: string) {
             "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ deviceId, pin }),
+        body: JSON.stringify({ username, deviceId, pin }),
     });
 
     console.log("[PIN-API] Response status:", response.status);

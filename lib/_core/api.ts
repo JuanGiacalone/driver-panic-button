@@ -9,7 +9,7 @@ type ApiResponse<T> = {
 /**
  * Get the API base URL, deriving from current hostname if not set.
  */
-function getApiBaseUrl(): string {
+export function getApiBaseUrl(): string {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? "";
 
   if (API_BASE_URL) {

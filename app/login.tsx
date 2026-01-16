@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, ActivityIndicator, TouchableOpacity, TextInput } from "react-native";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { PinInput } from "@/components/pin-input";
@@ -11,17 +11,41 @@ import * as Auth from "@/lib/_core/auth";
 export default function LoginScreen() {
   const colors = useColors();
   const { isAuthenticated, loading, refresh } = useAuth();
+  const [username, setUsername] = useState("");
+  const [pin, setPin] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState("");
   const [pinError, setPinError] = useState(false);
 
-  const handlePinComplete = async (pin: string) => {
+  // Load stored credentials on mount
+  useEffect(() => {
+    const loadCredentials = async () => {
+      const stored = await Auth.getStoredCredentials();
+      if (stored.username) {
+        setUsername(stored.username);
+      }
+    };
+    loadCredentials();
+  }, []);
+
+  const handleLogin = async (finalPin?: string) => {
+    const pinToUse = finalPin || pin;
+    
+    if (!username) {
+      setError("Please enter your username");
+      return;
+    }
+    if (pinToUse.length < 6) {
+      setError("Please enter your 6-digit PIN");
+      return;
+    }
+
     setError("");
     setPinError(false);
     setIsLoggingIn(true);
 
     try {
-      const result = await PinApi.loginWithPin(pin);
+      const result = await PinApi.loginWithPin(username, pinToUse);
 
       // Store session token and user info
       if (result.sessionToken) {
@@ -39,6 +63,9 @@ export default function LoginScreen() {
         await Auth.setUserInfo(userInfo);
       }
 
+      // Save credentials for future use
+      await Auth.setStoredCredentials(username, pinToUse);
+
       // Refresh auth state and redirect
       await refresh();
       router.replace("/(tabs)");
@@ -49,6 +76,11 @@ export default function LoginScreen() {
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  const handlePinComplete = (completedPin: string) => {
+    setPin(completedPin);
+    handleLogin(completedPin);
   };
 
   // Redirect if already authenticated
@@ -71,7 +103,7 @@ export default function LoginScreen() {
     <ScreenContainer>
       <View className="flex-1 justify-center px-6 py-8">
         {/* Logo and Title */}
-        <View className="items-center mb-12">
+        <View className="items-center mb-8">
           <View className="w-24 h-24 bg-primary rounded-full items-center justify-center mb-4">
             <Text className="text-5xl text-white font-bold">SOS</Text>
           </View>
@@ -83,19 +115,31 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        {/* PIN Input */}
+        {/* Login Form */}
         <View className="gap-6">
-          <View className="items-center">
-            <Text className="text-xl font-semibold text-foreground mb-2">
-              Enter Your PIN
+          <View>
+            <Text className="text-sm font-medium text-foreground mb-2 ml-1">
+              Username
             </Text>
-            <Text className="text-sm text-muted text-center mb-6">
-              Enter the 6-digit PIN assigned by your administrator
-            </Text>
+            <TextInput
+              className="w-full h-14 px-4 rounded-xl border-2 border-border bg-background text-foreground text-lg"
+              placeholder="Enter your username"
+              placeholderTextColor={colors.muted}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
+          <View className="items-center">
+            <Text className="text-sm font-medium text-foreground mb-4 self-start ml-1">
+              Enter Your 6-Digit PIN
+            </Text>
             <PinInput
               length={6}
               onComplete={handlePinComplete}
+              onChangePin={setPin}
               error={pinError}
             />
           </View>
@@ -107,21 +151,26 @@ export default function LoginScreen() {
             </View>
           ) : null}
 
-          {/* Loading Indicator */}
-          {isLoggingIn ? (
-            <View className="items-center">
-              <ActivityIndicator color={colors.primary} />
-              <Text className="text-muted text-sm mt-2">Authenticating...</Text>
-            </View>
-          ) : null}
+          {/* Login Button (Optional, as PIN complete triggers login) */}
+          <TouchableOpacity
+            className={`h-14 rounded-xl items-center justify-center ${isLoggingIn ? 'bg-primary/50' : 'bg-primary'}`}
+            onPress={() => handleLogin()}
+            disabled={isLoggingIn}
+          >
+            {isLoggingIn ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white text-lg font-bold">Login</Text>
+            )}
+          </TouchableOpacity>
 
           {/* Help Text */}
-          <View className="mt-8">
+          <View className="mt-4">
             <Text className="text-muted text-xs text-center">
-              Don't have a PIN? Contact your administrator
+              Don't have a login? Contact your administrator
             </Text>
             <Text className="text-muted text-xs text-center mt-2">
-              Development: Use device ID "dev-device-user" with PIN 123456
+              Development: Use username "driver1" with PIN 123456
             </Text>
           </View>
         </View>

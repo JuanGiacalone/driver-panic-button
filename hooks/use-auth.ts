@@ -88,6 +88,7 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       await Auth.removeSessionToken();
       await Auth.clearUserInfo();
+      await Auth.clearStoredCredentials();
       setUser(null);
       setError(null);
     }

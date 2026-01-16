@@ -19,7 +19,7 @@ const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
 
 export type SessionPayload = {
-  openId: string;
+  deviceId: string;
   appId: string;
   name: string;
 };
@@ -146,12 +146,12 @@ class SDKServer {
    * const sessionToken = await sdk.createSessionToken(userInfo.openId);
    */
   async createSessionToken(
-    openId: string,
+    deviceId: string,
     options: { expiresInMs?: number; name?: string } = {},
   ): Promise<string> {
     return this.signSession(
       {
-        openId,
+        deviceId,
         appId: ENV.appId,
         name: options.name || "",
       },
@@ -169,7 +169,7 @@ class SDKServer {
     const secretKey = this.getSessionSecret();
 
     return new SignJWT({
-      openId: payload.openId,
+      deviceId: payload.deviceId,
       appId: payload.appId,
       name: payload.name,
     })
@@ -180,7 +180,7 @@ class SDKServer {
 
   async verifySession(
     cookieValue: string | undefined | null,
-  ): Promise<{ openId: string; appId: string; name: string } | null> {
+  ): Promise<{ deviceId: string; appId: string; name: string } | null> {
     if (!cookieValue) {
       console.warn("[Auth] Missing session cookie");
       return null;
@@ -191,15 +191,15 @@ class SDKServer {
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
-      const { openId, appId, name } = payload as Record<string, unknown>;
+      const { deviceId, appId, name } = payload as Record<string, unknown>;
 
-      if (!isNonEmptyString(openId) || !isNonEmptyString(appId) || !isNonEmptyString(name)) {
+      if (!isNonEmptyString(deviceId) || !isNonEmptyString(appId) || !isNonEmptyString(name)) {
         console.warn("[Auth] Session payload missing required fields");
         return null;
       }
 
       return {
-        openId,
+        deviceId,
         appId,
         name,
       };
@@ -247,34 +247,16 @@ class SDKServer {
       throw ForbiddenError("Invalid session cookie");
     }
 
-    const sessionUserId = session.openId;
+    const sessionDeviceId = session.deviceId;
     const signedInAt = new Date();
-    let user = await db.getUserByOpenId(sessionUserId);
-
-    // If user not in DB, sync from OAuth server automatically
-    if (!user) {
-      try {
-        const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
-        await db.upsertUser({
-          openId: userInfo.openId,
-          name: userInfo.name || null,
-          email: userInfo.email ?? null,
-          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
-          lastSignedIn: signedInAt,
-        });
-        user = await db.getUserByOpenId(userInfo.openId);
-      } catch (error) {
-        console.error("[Auth] Failed to sync user from OAuth:", error);
-        throw ForbiddenError("Failed to sync user info");
-      }
-    }
+    let user = await db.getUserByDeviceId(sessionDeviceId);
 
     if (!user) {
       throw ForbiddenError("User not found");
     }
 
     await db.upsertUser({
-      openId: user.openId,
+      deviceId: user.deviceId,
       lastSignedIn: signedInAt,
     });
 

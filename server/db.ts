@@ -18,7 +18,7 @@ export async function getDb() {
   return _db;
 }
 
-export async function upsertUser(user: InsertUser): Promise<void> {
+export async function upsertUser(user: Partial<InsertUser> & { deviceId: string }): Promise<void> {
   if (!user.deviceId) {
     throw new Error("User deviceId is required for upsert");
   }
@@ -30,7 +30,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
-    const values: InsertUser = {
+    const values: Partial<InsertUser> & { deviceId: string } = {
       deviceId: user.deviceId,
     };
     const updateSet: Record<string, unknown> = {};
@@ -65,7 +65,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    await db.insert(users).values(values as any).onDuplicateKeyUpdate({
       set: updateSet,
     });
   } catch (error) {
@@ -82,6 +82,18 @@ export async function getUserByDeviceId(deviceId: string) {
   }
 
   const result = await db.select().from(users).where(eq(users.deviceId, deviceId)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByPinHash(pinHash: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+  console.log("[Database] Getting user by pin hash:", pinHash);
+  const result = await db.select().from(users).where(eq(users.pinHash, pinHash)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }

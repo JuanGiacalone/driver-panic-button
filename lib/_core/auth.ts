@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { SESSION_TOKEN_KEY, USER_INFO_KEY } from "@/constants/const";
+import { SESSION_TOKEN_KEY, USER_INFO_KEY, USERNAME_KEY, PIN_KEY } from "@/constants/const";
 
 export type User = {
   id: number;
@@ -124,5 +124,53 @@ export async function clearUserInfo(): Promise<void> {
     await SecureStore.deleteItemAsync(USER_INFO_KEY);
   } catch (error) {
     console.error("[Auth] Failed to clear user info:", error);
+  }
+}
+
+export async function getStoredCredentials(): Promise<{ username: string | null; pin: string | null }> {
+  try {
+    let username: string | null = null;
+    let pin: string | null = null;
+
+    if (Platform.OS === "web") {
+      username = window.localStorage.getItem(USERNAME_KEY);
+      pin = window.localStorage.getItem(PIN_KEY);
+    } else {
+      username = await SecureStore.getItemAsync(USERNAME_KEY);
+      pin = await SecureStore.getItemAsync(PIN_KEY);
+    }
+
+    return { username, pin };
+  } catch (error) {
+    console.error("[Auth] Failed to get stored credentials:", error);
+    return { username: null, pin: null };
+  }
+}
+
+export async function setStoredCredentials(username: string, pin: string): Promise<void> {
+  try {
+    if (Platform.OS === "web") {
+      window.localStorage.setItem(USERNAME_KEY, username);
+      window.localStorage.setItem(PIN_KEY, pin);
+    } else {
+      await SecureStore.setItemAsync(USERNAME_KEY, username);
+      await SecureStore.setItemAsync(PIN_KEY, pin);
+    }
+  } catch (error) {
+    console.error("[Auth] Failed to set stored credentials:", error);
+  }
+}
+
+export async function clearStoredCredentials(): Promise<void> {
+  try {
+    if (Platform.OS === "web") {
+      window.localStorage.removeItem(USERNAME_KEY);
+      window.localStorage.removeItem(PIN_KEY);
+    } else {
+      await SecureStore.deleteItemAsync(USERNAME_KEY);
+      await SecureStore.deleteItemAsync(PIN_KEY);
+    }
+  } catch (error) {
+    console.error("[Auth] Failed to clear stored credentials:", error);
   }
 }

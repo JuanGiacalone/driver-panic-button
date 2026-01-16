@@ -7,3 +7,5 @@ export const NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
 // Session storage keys
 export const SESSION_TOKEN_KEY = "session_token";
 export const USER_INFO_KEY = "user_info";
+export const USERNAME_KEY = "username";
+export const PIN_KEY = "pin";

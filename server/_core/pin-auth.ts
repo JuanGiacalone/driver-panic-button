@@ -1,5 +1,5 @@
 import * as bcrypt from "bcryptjs";
-import { getUserByDeviceId, createUser as dbCreateUser, updateUserPin as dbUpdateUserPin } from "../db";
+import { getUserByPinHash, createUser as dbCreateUser, updateUserPin as dbUpdateUserPin, getUserByDeviceId } from "../db";
 import { sdk } from "./sdk";
 
 /**
@@ -47,7 +47,7 @@ export async function authenticateUser(deviceId: string, pin: string) {
     const user = await getUserByDeviceId(deviceId);
 
     if (!user) {
-        throw new Error("Device not registered");
+        throw new Error("Invalid PIN");
     }
 
     const isValid = await verifyPin(pin, user.pinHash);

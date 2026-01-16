@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { drizzle } from "drizzle-orm/mysql2";
 import { users } from "../drizzle/schema";
 import * as bcrypt from "bcryptjs";

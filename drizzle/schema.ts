@@ -21,6 +21,8 @@ export const users = mysqlTable("users", {
   name: text("name"),
   /** Whether the user's subscription is active (controlled by admin). */
   isActive: int("isActive").default(0).notNull(),
+  /** Last subscription payment date (controlled by admin). */
+  lastPaymentDate: timestamp("lastPaymentDate"),
   /** User role: 'user' or 'admin'. */
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

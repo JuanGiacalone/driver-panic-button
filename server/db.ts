@@ -141,6 +141,36 @@ export async function updateUserActiveStatus(userId: number, isActive: boolean):
   await db.update(users).set({ isActive: isActive ? 1 : 0 }).where(eq(users.id, userId));
 }
 
+export async function updateUserPaymentDate(userId: number, paymentDate: Date): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(users).set({ lastPaymentDate: paymentDate }).where(eq(users.id, userId));
+}
+
+export async function getUsersWithExpiredPayments(daysThreshold: number = 30): Promise<any[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get users: database not available");
+    return [];
+  }
+
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - daysThreshold);
+
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.isActive, 1));
+
+  // Filter users whose lastPaymentDate is older than threshold or null
+  return result.filter(user => 
+    !user.lastPaymentDate || new Date(user.lastPaymentDate) < thresholdDate
+  );
+}
+
 export async function updateUserPin(deviceId: string, pinHash: string): Promise<void> {
   const db = await getDb();
   if (!db) {

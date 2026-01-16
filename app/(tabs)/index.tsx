@@ -33,7 +33,7 @@ export default function HomeScreen() {
   useEffect(() => {
     if (bluetooth.connectedDevice) {
       const unsubscribe = bluetooth.subscribeToButtonPress(async () => {
-        console.log("Bluetooth button pressed, triggering panic");
+        console.log("Botón Bluetooth presionado, activando pánico");
         await handlePanicPress();
       });
 
@@ -63,20 +63,20 @@ export default function HomeScreen() {
   const handlePanicPress = async () => {
     if (contacts.length === 0) {
       Alert.alert(
-        "No Emergency Contacts",
-        "Please add at least one emergency contact before using the panic button.",
-        [{ text: "Add Contacts", onPress: () => router.push("/contacts") }]
+        "Sin Contactos de Emergencia",
+        "Por favor agrega al menos un contacto de emergencia antes de usar el botón de pánico.",
+        [{ text: "Agregar Contactos", onPress: () => router.push("/contacts") }]
       );
       return;
     }
 
     if (!hasLocationPermission) {
       Alert.alert(
-        "Location Permission Required",
-        "Please grant location permission to send your coordinates in emergency alerts.",
+        "Permiso de Ubicación Requerido",
+        "Por favor otorga permiso de ubicación para enviar tus coordenadas en alertas de emergencia.",
         [
-          { text: "Cancel", style: "cancel" },
-          { text: "Grant Permission", onPress: requestPermissions },
+          { text: "Cancelar", style: "cancel" },
+          { text: "Otorgar Permiso", onPress: requestPermissions },
         ]
       );
       return;
@@ -101,8 +101,8 @@ export default function HomeScreen() {
       
       if (failedCount > 0) {
         Alert.alert(
-          "Partial Success",
-          `Alert sent to ${results.length - failedCount} of ${results.length} contacts.`,
+          "Éxito Parcial",
+          `Alerta enviada a ${results.length - failedCount} de ${results.length} contactos.`,
           [{ text: "OK" }]
         );
       } else {
@@ -111,8 +111,8 @@ export default function HomeScreen() {
       }
     } catch (error) {
       Alert.alert(
-        "Alert Failed",
-        error instanceof Error ? error.message : "Failed to send emergency alert",
+        "Alerta Fallida",
+        error instanceof Error ? error.message : "Error al enviar alerta de emergencia",
         [{ text: "OK" }]
       );
     } finally {
@@ -138,7 +138,7 @@ export default function HomeScreen() {
                 className={`w-2 h-2 rounded-full ${hasLocationPermission ? "bg-success" : "bg-error"}`}
               />
               <Text className="text-sm text-muted">
-                {hasLocationPermission ? "GPS Ready" : "GPS Disabled"}
+                {hasLocationPermission ? "GPS Listo" : "GPS Desactivado"}
               </Text>
             </View>
             <View className="flex-row items-center gap-2 flex-wrap justify-end">
@@ -198,11 +198,11 @@ export default function HomeScreen() {
           <Text className="text-center text-muted mt-6 text-base">
             {!canUsePanicButton
               ? contacts.length === 0
-                ? "Add emergency contacts to activate"
-                : "Grant location permission to activate"
+                ? "Agrega contactos de emergencia para activar"
+                : "Otorga permiso de ubicación para activar"
               : bluetooth.connectedDevice
-                ? "Tap or press Bluetooth button"
-                : "Tap to send emergency alert"}
+                ? "Toca o presiona el botón Bluetooth"
+                : "Toca para enviar alerta de emergencia"}
           </Text>
         </View>
 
@@ -215,7 +215,7 @@ export default function HomeScreen() {
                 className="bg-surface border border-border rounded-xl py-3 items-center"
               >
                 <Text className="text-primary font-semibold">
-                  Add Emergency Contacts
+                  Agregar Contactos de Emergencia
                 </Text>
               </TouchableOpacity>
             )}
@@ -225,7 +225,7 @@ export default function HomeScreen() {
                 className="bg-surface border border-border rounded-xl py-3 items-center"
               >
                 <Text className="text-primary font-semibold">
-                  Enable Location Access
+                  Habilitar Acceso a Ubicación
                 </Text>
               </TouchableOpacity>
             )}
@@ -278,7 +278,7 @@ export default function HomeScreen() {
                 marginBottom: 8,
               }}
             >
-              Alert Sent
+              Alerta Enviada
             </Text>
             <Text
               style={{
@@ -287,8 +287,8 @@ export default function HomeScreen() {
                 textAlign: "center",
               }}
             >
-              Emergency alert sent to {contacts.length}{" "}
-              {contacts.length === 1 ? "contact" : "contacts"}
+              Alerta de emergencia enviada a {contacts.length}{" "}
+              {contacts.length === 1 ? "contacto" : "contactos"}
             </Text>
           </View>
         </View>

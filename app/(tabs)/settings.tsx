@@ -17,8 +17,8 @@ import { useColors } from "@/hooks/use-colors";
 export default function SettingsScreen() {
   const colors = useColors();
   const { user, logout } = useAuth();
-  const [locationStatus, setLocationStatus] = useState<string>("Checking...");
-  const [bluetoothStatus] = useState<string>("Not Connected");
+  const [locationStatus, setLocationStatus] = useState<string>("Verificando...");
+  const [bluetoothStatus] = useState<string>("No Conectado");
 
   useEffect(() => {
     checkLocationPermissions();
@@ -29,11 +29,11 @@ export default function SettingsScreen() {
     const { status: backgroundStatus } = await Location.getBackgroundPermissionsAsync();
 
     if (foregroundStatus === "granted" && backgroundStatus === "granted") {
-      setLocationStatus("Enabled (Always)");
+      setLocationStatus("Habilitado (Siempre)");
     } else if (foregroundStatus === "granted") {
-      setLocationStatus("Enabled (While Using)");
+      setLocationStatus("Habilitado (En Uso)");
     } else {
-      setLocationStatus("Disabled");
+      setLocationStatus("Deshabilitado");
     }
   };
 
@@ -45,17 +45,17 @@ export default function SettingsScreen() {
       await checkLocationPermissions();
     } else {
       Alert.alert(
-        "Permission Denied",
-        "Location permission is required for emergency alerts to include your coordinates."
+        "Permiso Denegado",
+        "El permiso de ubicación es necesario para que las alertas de emergencia incluyan tus coordenadas."
       );
     }
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert("Cerrar Sesión", "¿Estás seguro de que quieres cerrar sesión?", [
+      { text: "Cancelar", style: "cancel" },
       {
-        text: "Logout",
+        text: "Cerrar Sesión",
         style: "destructive",
         onPress: async () => {
           if (Platform.OS !== "web") {
@@ -113,7 +113,7 @@ export default function SettingsScreen() {
             className="text-2xl font-bold"
             style={{ color: colors.foreground }}
           >
-            Settings
+            Configuración
           </Text>
         </View>
 
@@ -123,14 +123,14 @@ export default function SettingsScreen() {
             className="text-xs font-semibold uppercase mb-3"
             style={{ color: colors.muted }}
           >
-            Account
+            Cuenta
           </Text>
           <View
             className="bg-surface rounded-xl p-4"
             style={{ backgroundColor: colors.surface }}
           >
-            <SettingRow label="Name" value={user?.name || "Not set"} />
-            <SettingRow label="Email" value={user?.email || "Not set"} />
+            <SettingRow label="Nombre" value={user?.name || "No establecido"} />
+            <SettingRow label="Correo" value={user?.email || "No establecido"} />
           </View>
         </View>
 
@@ -140,21 +140,21 @@ export default function SettingsScreen() {
             className="text-xs font-semibold uppercase mb-3"
             style={{ color: colors.muted }}
           >
-            Permissions
+            Permisos
           </Text>
           <View
             className="bg-surface rounded-xl p-4"
             style={{ backgroundColor: colors.surface }}
           >
             <SettingRow
-              label="Location Access"
+              label="Acceso a Ubicación"
               value={locationStatus}
               onPress={
-                locationStatus !== "Enabled (Always)"
+                locationStatus !== "Habilitado (Siempre)"
                   ? handleRequestLocationPermissions
                   : undefined
               }
-              showChevron={locationStatus !== "Enabled (Always)"}
+              showChevron={locationStatus !== "Habilitado (Siempre)"}
             />
             <SettingRow
               label="Bluetooth"
@@ -171,14 +171,14 @@ export default function SettingsScreen() {
             className="text-xs font-semibold uppercase mb-3"
             style={{ color: colors.muted }}
           >
-            Alert Settings
+            Configuración de Alertas
           </Text>
           <View
             className="bg-surface rounded-xl p-4"
             style={{ backgroundColor: colors.surface }}
           >
             <SettingRow
-              label="Custom Alert Message"
+              label="Mensaje de Alerta Personalizado"
               onPress={() => router.push("/alert-message-settings")}
               showChevron
             />
@@ -191,19 +191,19 @@ export default function SettingsScreen() {
             className="text-xs font-semibold uppercase mb-3"
             style={{ color: colors.muted }}
           >
-            About
+            Acerca de
           </Text>
           <View
             className="bg-surface rounded-xl p-4"
             style={{ backgroundColor: colors.surface }}
           >
-            <SettingRow label="Version" value="1.0.0" />
+            <SettingRow label="Versión" value="1.0.0" />
             <SettingRow
-              label="Help & Support"
+              label="Ayuda y Soporte"
               onPress={() => {
                 Alert.alert(
-                  "Help & Support",
-                  "For assistance, please contact support@example.com"
+                  "Ayuda y Soporte",
+                  "Para asistencia, por favor contacta a support@example.com"
                 );
               }}
               showChevron
@@ -217,7 +217,7 @@ export default function SettingsScreen() {
           className="bg-error/10 border border-error rounded-xl py-4 items-center mb-8"
         >
           <Text className="font-semibold" style={{ color: colors.error }}>
-            Logout
+            Cerrar Sesión
           </Text>
         </TouchableOpacity>
       </ScrollView>

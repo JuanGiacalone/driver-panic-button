@@ -16,7 +16,7 @@ import { useColors } from "@/hooks/use-colors";
 import { getSettings, saveSettings } from "@/lib/storage";
 import type { AppSettings } from "@/types";
 
-const DEFAULT_MESSAGE = "EMERGENCY! I need help. My location:";
+const DEFAULT_MESSAGE = "¡EMERGENCIA! Necesito ayuda. Mi ubicación:";
 const MAX_MESSAGE_LENGTH = 160;
 
 export default function AlertMessageSettingsScreen() {
@@ -51,7 +51,7 @@ export default function AlertMessageSettingsScreen() {
 
   const handleSave = async () => {
     if (!message.trim()) {
-      Alert.alert("Validation Error", "Message cannot be empty");
+      Alert.alert("Error de Validación", "El mensaje no puede estar vacío");
       return;
     }
 
@@ -69,13 +69,13 @@ export default function AlertMessageSettingsScreen() {
       };
       await saveSettings(updatedSettings);
 
-      Alert.alert("Success", "Alert message updated", [
+      Alert.alert("Éxito", "Mensaje de alerta actualizado", [
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to save message"
+        error instanceof Error ? error.message : "Error al guardar mensaje"
       );
     } finally {
       setIsSaving(false);
@@ -84,12 +84,12 @@ export default function AlertMessageSettingsScreen() {
 
   const handleReset = () => {
     Alert.alert(
-      "Reset to Default",
-      `Reset message to: "${DEFAULT_MESSAGE}"?`,
+      "Restablecer a Predeterminado",
+      `¿Restablecer mensaje a: "${DEFAULT_MESSAGE}"?`,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "Cancelar", style: "cancel" },
         {
-          text: "Reset",
+          text: "Restablecer",
           style: "destructive",
           onPress: () => {
             setMessage(DEFAULT_MESSAGE);
@@ -104,7 +104,7 @@ export default function AlertMessageSettingsScreen() {
     return (
       <ScreenContainer>
         <View className="flex-1 items-center justify-center">
-          <Text style={{ color: colors.foreground }}>Loading...</Text>
+          <Text style={{ color: colors.foreground }}>Cargando...</Text>
         </View>
       </ScreenContainer>
     );
@@ -131,10 +131,10 @@ export default function AlertMessageSettingsScreen() {
                 className="text-2xl font-bold"
                 style={{ color: colors.foreground }}
               >
-                Alert Message
+                Mensaje de Alerta
               </Text>
               <Text className="text-sm mt-1" style={{ color: colors.muted }}>
-                Customize the message sent to emergency contacts
+                Personaliza el mensaje enviado a los contactos de emergencia
               </Text>
             </View>
 
@@ -147,11 +147,11 @@ export default function AlertMessageSettingsScreen() {
                 className="text-sm font-medium mb-2"
                 style={{ color: colors.primary }}
               >
-                ℹ️ Message Info
+                ℹ️ Información del Mensaje
               </Text>
               <Text className="text-xs" style={{ color: colors.primary }}>
-                Your location will be automatically appended to this message when
-                sending alerts.
+                Tu ubicación se agregará automáticamente a este mensaje al
+                enviar alertas.
               </Text>
             </View>
 
@@ -162,7 +162,7 @@ export default function AlertMessageSettingsScreen() {
                   className="text-sm font-medium"
                   style={{ color: colors.foreground }}
                 >
-                  Message Template
+                  Plantilla de Mensaje
                 </Text>
                 <Text
                   className="text-xs font-medium"
@@ -176,7 +176,7 @@ export default function AlertMessageSettingsScreen() {
               <TextInput
                 value={message}
                 onChangeText={handleMessageChange}
-                placeholder="Enter your alert message"
+                placeholder="Ingresa tu mensaje de alerta"
                 placeholderTextColor={colors.muted}
                 multiline
                 numberOfLines={4}
@@ -191,7 +191,7 @@ export default function AlertMessageSettingsScreen() {
               />
               {remainingLength <= 20 && (
                 <Text className="text-xs mt-2" style={{ color: colors.warning }}>
-                  {remainingLength} characters remaining
+                  {remainingLength} caracteres restantes
                 </Text>
               )}
             </View>
@@ -202,7 +202,7 @@ export default function AlertMessageSettingsScreen() {
                 className="text-sm font-medium mb-2"
                 style={{ color: colors.foreground }}
               >
-                Preview
+                Vista Previa
               </Text>
               <View
                 className="rounded-xl p-4 border"
@@ -229,14 +229,14 @@ export default function AlertMessageSettingsScreen() {
                 className="text-sm font-medium mb-3"
                 style={{ color: colors.foreground }}
               >
-                Quick Templates
+                Plantillas Rápidas
               </Text>
               <View className="gap-2">
                 {[
-                  "EMERGENCY! I need help. My location:",
-                  "Help needed immediately! Location:",
-                  "SOS - Please send help. My location:",
-                  "I'm in danger. Please help. Location:",
+                  "¡EMERGENCIA! Necesito ayuda. Mi ubicación:",
+                  "¡Ayuda necesaria inmediatamente! Ubicación:",
+                  "SOS - Por favor envía ayuda. Mi ubicación:",
+                  "Estoy en peligro. Por favor ayuda. Ubicación:",
                 ].map((template, index) => (
                   <TouchableOpacity
                     key={index}
@@ -282,7 +282,7 @@ export default function AlertMessageSettingsScreen() {
                 }}
               >
                 <Text className="text-white text-base font-semibold">
-                  {isSaving ? "Saving..." : "Save Message"}
+                  {isSaving ? "Guardando..." : "Guardar Mensaje"}
                 </Text>
               </TouchableOpacity>
 
@@ -298,7 +298,7 @@ export default function AlertMessageSettingsScreen() {
                   style={{ color: colors.foreground }}
                   className="text-base font-semibold"
                 >
-                  Reset to Default
+                  Restablecer a Predeterminado
                 </Text>
               </TouchableOpacity>
 
@@ -314,7 +314,7 @@ export default function AlertMessageSettingsScreen() {
                   style={{ color: colors.foreground }}
                   className="text-base font-semibold"
                 >
-                  Cancel
+                  Cancelar
                 </Text>
               </TouchableOpacity>
             </View>

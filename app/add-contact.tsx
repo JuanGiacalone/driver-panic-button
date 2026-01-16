@@ -32,19 +32,19 @@ export default function AddContactScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert("Validation Error", "Please enter a contact name");
+      Alert.alert("Error de Validación", "Por favor ingresa un nombre de contacto");
       return;
     }
 
     if (!phoneNumber.trim()) {
-      Alert.alert("Validation Error", "Please enter a phone number");
+      Alert.alert("Error de Validación", "Por favor ingresa un número de teléfono");
       return;
     }
 
     if (!validatePhoneNumber(phoneNumber)) {
       Alert.alert(
-        "Validation Error",
-        "Please enter a valid phone number with at least 10 digits"
+        "Error de Validación",
+        "Por favor ingresa un número de teléfono válido con al menos 10 dígitos"
       );
       return;
     }
@@ -63,13 +63,13 @@ export default function AddContactScreen() {
         alertMethod,
       });
 
-      Alert.alert("Success", "Emergency contact added", [
+      Alert.alert("Éxito", "Contacto de emergencia agregado", [
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to save contact"
+        error instanceof Error ? error.message : "Error al guardar contacto"
       );
     } finally {
       setIsSaving(false);
@@ -93,10 +93,10 @@ export default function AddContactScreen() {
                 className="text-2xl font-bold"
                 style={{ color: colors.foreground }}
               >
-                Add Emergency Contact
+                Agregar Contacto de Emergencia
               </Text>
               <Text className="text-sm mt-1" style={{ color: colors.muted }}>
-                This contact will receive alerts when you trigger the panic button
+                Este contacto recibirá alertas cuando actives el botón de pánico
               </Text>
             </View>
 
@@ -107,12 +107,12 @@ export default function AddContactScreen() {
                   className="text-sm font-medium mb-2"
                   style={{ color: colors.foreground }}
                 >
-                  Full Name *
+                  Nombre Completo *
                 </Text>
                 <TextInput
                   value={name}
                   onChangeText={setName}
-                  placeholder="John Doe"
+                  placeholder="Juan Pérez"
                   placeholderTextColor={colors.muted}
                   autoCapitalize="words"
                   returnKeyType="next"
@@ -126,7 +126,7 @@ export default function AddContactScreen() {
                   className="text-sm font-medium mb-2"
                   style={{ color: colors.foreground }}
                 >
-                  Phone Number *
+                  Número de Teléfono *
                 </Text>
                 <TextInput
                   value={phoneNumber}
@@ -139,7 +139,7 @@ export default function AddContactScreen() {
                   style={{ color: colors.foreground }}
                 />
                 <Text className="text-xs mt-1" style={{ color: colors.muted }}>
-                  Include country code for international numbers
+                  Incluye el código de país para números internacionales
                 </Text>
               </View>
 
@@ -148,7 +148,7 @@ export default function AddContactScreen() {
                   className="text-sm font-medium mb-2"
                   style={{ color: colors.foreground }}
                 >
-                  Alert Method *
+                  Método de Alerta *
                 </Text>
                 <View className="flex-row gap-3">
                   <TouchableOpacity
@@ -180,7 +180,7 @@ export default function AddContactScreen() {
                       className="text-xs text-center mt-1"
                       style={{ color: colors.muted }}
                     >
-                      Text message
+                      Mensaje de texto
                     </Text>
                   </TouchableOpacity>
 
@@ -215,7 +215,7 @@ export default function AddContactScreen() {
                       className="text-xs text-center mt-1"
                       style={{ color: colors.muted }}
                     >
-                      Instant message
+                      Mensaje instantáneo
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -233,7 +233,7 @@ export default function AddContactScreen() {
                 }}
               >
                 <Text className="text-white text-base font-semibold">
-                  {isSaving ? "Saving..." : "Save Contact"}
+                  {isSaving ? "Guardando..." : "Guardar Contacto"}
                 </Text>
               </TouchableOpacity>
 
@@ -246,7 +246,7 @@ export default function AddContactScreen() {
                 }}
               >
                 <Text style={{ color: colors.foreground }} className="text-base font-semibold">
-                  Cancel
+                  Cancelar
                 </Text>
               </TouchableOpacity>
             </View>

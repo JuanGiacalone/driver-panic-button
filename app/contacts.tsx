@@ -43,12 +43,12 @@ export default function ContactsScreen() {
 
   const handleDeleteContact = (contact: EmergencyContact) => {
     Alert.alert(
-      "Delete Contact",
-      `Remove ${contact.name} from emergency contacts?`,
+      "Eliminar Contacto",
+      `¿Eliminar a ${contact.name} de los contactos de emergencia?`,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "Cancelar", style: "cancel" },
         {
-          text: "Delete",
+          text: "Eliminar",
           style: "destructive",
           onPress: async () => {
             if (Platform.OS !== "web") {
@@ -118,7 +118,7 @@ export default function ContactsScreen() {
               borderColor: colors.border,
             })}
           >
-            <Text style={{ color: colors.primary, fontSize: 12 }}>Edit</Text>
+            <Text style={{ color: colors.primary, fontSize: 12 }}>Editar</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleDeleteContact(item)}
@@ -127,7 +127,7 @@ export default function ContactsScreen() {
               opacity: pressed ? 0.6 : 1,
             })}
           >
-            <Text style={{ color: colors.error, fontSize: 12 }}>Delete</Text>
+            <Text style={{ color: colors.error, fontSize: 12 }}>Eliminar</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -146,13 +146,13 @@ export default function ContactsScreen() {
         className="text-xl font-semibold mb-2"
         style={{ color: colors.foreground }}
       >
-        No Emergency Contacts
+        Sin Contactos de Emergencia
       </Text>
       <Text
         className="text-sm text-center px-8 mb-6"
         style={{ color: colors.muted }}
       >
-        Add at least one emergency contact to activate the panic button
+        Agrega al menos un contacto de emergencia para activar el botón de pánico
       </Text>
       <TouchableOpacity
         onPress={handleAddContact}
@@ -162,7 +162,7 @@ export default function ContactsScreen() {
           transform: [{ scale: pressed ? 0.97 : 1 }],
         })}
       >
-        <Text className="text-white font-semibold">Add First Contact</Text>
+        <Text className="text-white font-semibold">Agregar Primer Contacto</Text>
       </TouchableOpacity>
     </View>
   );
@@ -177,11 +177,11 @@ export default function ContactsScreen() {
               className="text-2xl font-bold"
               style={{ color: colors.foreground }}
             >
-              Emergency Contacts
+              Contactos de Emergencia
             </Text>
             <Text className="text-sm mt-1" style={{ color: colors.muted }}>
-              {contacts.length} {contacts.length === 1 ? "contact" : "contacts"}{" "}
-              added
+              {contacts.length} {contacts.length === 1 ? "contacto" : "contactos"}{" "}
+              agregado{contacts.length === 1 ? "" : "s"}
             </Text>
           </View>
           {contacts.length > 0 && (

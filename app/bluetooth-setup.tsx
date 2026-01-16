@@ -40,14 +40,14 @@ export default function BluetoothSetupScreen() {
       const hasPermission = await bluetoothService.requestPermissions();
       if (!hasPermission) {
         Alert.alert(
-          "Bluetooth Permission",
-          "Bluetooth permission is required to pair with a panic button device."
+          "Permiso de Bluetooth",
+          "El permiso de Bluetooth es necesario para emparejar con un dispositivo de botón de pánico."
         );
       }
     } catch (error) {
       Alert.alert(
-        "Bluetooth Error",
-        error instanceof Error ? error.message : "Failed to initialize Bluetooth"
+        "Error de Bluetooth",
+        error instanceof Error ? error.message : "Error al inicializar Bluetooth"
       );
     }
   };
@@ -95,8 +95,8 @@ export default function BluetoothSetupScreen() {
       }, 10000);
     } catch (error) {
       Alert.alert(
-        "Scan Error",
-        error instanceof Error ? error.message : "Failed to scan for devices"
+        "Error de Escaneo",
+        error instanceof Error ? error.message : "Error al escanear dispositivos"
       );
       setIsScanning(false);
     }
@@ -120,14 +120,14 @@ export default function BluetoothSetupScreen() {
       setConnectedDeviceId(device.id);
 
       Alert.alert(
-        "Connected",
-        `Successfully paired with ${device.name}. Press the button to test the connection.`,
+        "Conectado",
+        `Emparejado exitosamente con ${device.name}. Presiona el botón para probar la conexión.`,
         [{ text: "OK" }]
       );
     } catch (error) {
       Alert.alert(
-        "Connection Error",
-        error instanceof Error ? error.message : "Failed to connect to device"
+        "Error de Conexión",
+        error instanceof Error ? error.message : "Error al conectar con el dispositivo"
       );
     } finally {
       setIsConnecting(false);
@@ -144,11 +144,11 @@ export default function BluetoothSetupScreen() {
       await bluetoothService.removePairedDevice();
       setPairedDevice(null);
       setConnectedDeviceId(null);
-      Alert.alert("Disconnected", "Device has been disconnected");
+      Alert.alert("Desconectado", "El dispositivo ha sido desconectado");
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to disconnect"
+        error instanceof Error ? error.message : "Error al desconectar"
       );
     }
   };
@@ -194,7 +194,7 @@ export default function BluetoothSetupScreen() {
                   className="text-xs font-semibold"
                   style={{ color: colors.primary }}
                 >
-                  {isConnected ? "Connected" : "Paired"}
+                  {isConnected ? "Conectado" : "Emparejado"}
                 </Text>
               </View>
             )}
@@ -203,7 +203,7 @@ export default function BluetoothSetupScreen() {
                 className="text-sm font-semibold"
                 style={{ color: colors.primary }}
               >
-                Tap to pair
+                Toca para emparejar
               </Text>
             )}
           </View>
@@ -224,15 +224,15 @@ export default function BluetoothSetupScreen() {
         className="text-lg font-semibold mb-2"
         style={{ color: colors.foreground }}
       >
-        {isScanning ? "Scanning..." : "No Devices Found"}
+        {isScanning ? "Escaneando..." : "No se Encontraron Dispositivos"}
       </Text>
       <Text
         className="text-sm text-center px-8"
         style={{ color: colors.muted }}
       >
         {isScanning
-          ? "Make sure your panic button is powered on and nearby"
-          : "Tap the scan button to find Bluetooth devices"}
+          ? "Asegúrate de que tu botón de pánico esté encendido y cerca"
+          : "Toca el botón de escaneo para encontrar dispositivos Bluetooth"}
       </Text>
     </View>
   );
@@ -246,10 +246,10 @@ export default function BluetoothSetupScreen() {
             className="text-2xl font-bold"
             style={{ color: colors.foreground }}
           >
-            Bluetooth Setup
+            Configuración de Bluetooth
           </Text>
           <Text className="text-sm mt-1" style={{ color: colors.muted }}>
-            Pair with a physical panic button device
+            Empareja con un dispositivo físico de botón de pánico
           </Text>
         </View>
 
@@ -265,7 +265,7 @@ export default function BluetoothSetupScreen() {
                   className="text-sm font-medium"
                   style={{ color: colors.success }}
                 >
-                  Paired Device
+                  Dispositivo Emparejado
                 </Text>
                 <Text
                   className="text-base font-semibold mt-1"
@@ -285,7 +285,7 @@ export default function BluetoothSetupScreen() {
                   className="text-sm font-semibold"
                   style={{ color: colors.error }}
                 >
-                  Unpair
+                  Desemparejar
                 </Text>
               </TouchableOpacity>
             </View>
@@ -304,7 +304,7 @@ export default function BluetoothSetupScreen() {
           <View className="flex-row items-center gap-2">
             {isScanning && <ActivityIndicator color="white" size="small" />}
             <Text className="text-white text-base font-semibold">
-              {isScanning ? "Scanning..." : "Scan for Devices"}
+              {isScanning ? "Escaneando..." : "Escanear Dispositivos"}
             </Text>
           </View>
         </TouchableOpacity>
@@ -329,13 +329,13 @@ export default function BluetoothSetupScreen() {
             className="text-xs font-semibold uppercase mb-2"
             style={{ color: colors.muted }}
           >
-            How to pair
+            Cómo emparejar
           </Text>
           <Text className="text-sm leading-relaxed" style={{ color: colors.muted }}>
-            1. Make sure your panic button is powered on{"\n"}
-            2. Tap "Scan for Devices"{"\n"}
-            3. Select your device from the list{"\n"}
-            4. Press the button to test the connection
+            1. Asegúrate de que tu botón de pánico esté encendido{"\n"}
+            2. Toca "Escanear Dispositivos"{"\n"}
+            3. Selecciona tu dispositivo de la lista{"\n"}
+            4. Presiona el botón para probar la conexión
           </Text>
         </View>
 
@@ -349,7 +349,7 @@ export default function BluetoothSetupScreen() {
           }}
         >
           <Text style={{ color: colors.foreground }} className="text-base font-semibold">
-            Back
+            Volver
           </Text>
         </TouchableOpacity>
       </View>

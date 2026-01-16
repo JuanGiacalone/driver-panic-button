@@ -32,11 +32,11 @@ export default function LoginScreen() {
     const pinToUse = finalPin || pin;
     
     if (!username) {
-      setError("Please enter your username");
+      setError("Por favor ingresa tu nombre de usuario");
       return;
     }
     if (pinToUse.length < 6) {
-      setError("Please enter your 6-digit PIN");
+      setError("Por favor ingresa tu PIN de 6 dígitos");
       return;
     }
 
@@ -71,7 +71,7 @@ export default function LoginScreen() {
       router.replace("/(tabs)");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
       setPinError(true);
     } finally {
       setIsLoggingIn(false);
@@ -108,10 +108,10 @@ export default function LoginScreen() {
             <Text className="text-5xl text-white font-bold">SOS</Text>
           </View>
           <Text className="text-3xl font-bold text-foreground mb-2">
-            Driver Panic Button
+            Botón de Pánico para Conductores
           </Text>
           <Text className="text-base text-muted text-center">
-            Emergency alert system for drivers
+            Sistema de alerta de emergencia para conductores
           </Text>
         </View>
 
@@ -119,11 +119,11 @@ export default function LoginScreen() {
         <View className="gap-6">
           <View>
             <Text className="text-sm font-medium text-foreground mb-2 ml-1">
-              Username
+              Nombre de Usuario
             </Text>
             <TextInput
               className="w-full h-14 px-4 rounded-xl border-2 border-border bg-background text-foreground text-lg"
-              placeholder="Enter your username"
+              placeholder="Ingresa tu nombre de usuario"
               placeholderTextColor={colors.muted}
               value={username}
               onChangeText={setUsername}
@@ -134,7 +134,7 @@ export default function LoginScreen() {
 
           <View className="items-center">
             <Text className="text-sm font-medium text-foreground mb-4 self-start ml-1">
-              Enter Your 6-Digit PIN
+              Ingresa tu PIN de 6 Dígitos
             </Text>
             <PinInput
               length={6}
@@ -160,17 +160,17 @@ export default function LoginScreen() {
             {isLoggingIn ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white text-lg font-bold">Login</Text>
+              <Text className="text-white text-lg font-bold">Iniciar Sesión</Text>
             )}
           </TouchableOpacity>
 
           {/* Help Text */}
           <View className="mt-4">
             <Text className="text-muted text-xs text-center">
-              Don't have a login? Contact your administrator
+              ¿No tienes acceso? Contacta a tu administrador
             </Text>
             <Text className="text-muted text-xs text-center mt-2">
-              Development: Use username "driver1" with PIN 123456
+              Desarrollo: Usa el nombre de usuario "driver1" con PIN 123456
             </Text>
           </View>
         </View>

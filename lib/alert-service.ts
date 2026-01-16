@@ -30,13 +30,13 @@ async function sendSMS(phoneNumber: string, message: string): Promise<void> {
   const isAvailable = await SMS.isAvailableAsync();
   
   if (!isAvailable) {
-    throw new Error("SMS is not available on this device");
+    throw new Error("SMS no está disponible en este dispositivo");
   }
 
   const { result } = await SMS.sendSMSAsync([phoneNumber], message);
   
   if (result !== "sent") {
-    throw new Error(`SMS not sent: ${result}`);
+    throw new Error(`SMS no enviado: ${result}`);
   }
 }
 
@@ -53,7 +53,7 @@ async function sendWhatsApp(phoneNumber: string, message: string): Promise<void>
   const canOpen = await Linking.canOpenURL(url);
   
   if (!canOpen) {
-    throw new Error("WhatsApp is not installed on this device");
+    throw new Error("WhatsApp no está instalado en este dispositivo");
   }
   
   await Linking.openURL(url);
@@ -81,7 +81,7 @@ async function sendAlertToContact(
     return {
       success: false,
       contact,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Error desconocido",
     };
   }
 }

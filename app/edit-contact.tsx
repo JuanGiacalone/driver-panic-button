@@ -34,7 +34,7 @@ export default function EditContactScreen() {
   const loadContact = async () => {
     try {
       if (!contactId) {
-        Alert.alert("Error", "No contact ID provided");
+        Alert.alert("Error", "No se proporcionó ID de contacto");
         router.back();
         return;
       }
@@ -43,7 +43,7 @@ export default function EditContactScreen() {
       const foundContact = contacts.find((c) => c.id === contactId);
 
       if (!foundContact) {
-        Alert.alert("Error", "Contact not found");
+        Alert.alert("Error", "Contacto no encontrado");
         router.back();
         return;
       }
@@ -55,7 +55,7 @@ export default function EditContactScreen() {
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to load contact"
+        error instanceof Error ? error.message : "Error al cargar contacto"
       );
       router.back();
     } finally {
@@ -70,19 +70,19 @@ export default function EditContactScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert("Validation Error", "Please enter a contact name");
+      Alert.alert("Error de Validación", "Por favor ingresa un nombre de contacto");
       return;
     }
 
     if (!phoneNumber.trim()) {
-      Alert.alert("Validation Error", "Please enter a phone number");
+      Alert.alert("Error de Validación", "Por favor ingresa un número de teléfono");
       return;
     }
 
     if (!validatePhoneNumber(phoneNumber)) {
       Alert.alert(
-        "Validation Error",
-        "Please enter a valid phone number with at least 10 digits"
+        "Error de Validación",
+        "Por favor ingresa un número de teléfono válido con al menos 10 dígitos"
       );
       return;
     }
@@ -95,7 +95,7 @@ export default function EditContactScreen() {
 
     try {
       if (!contact) {
-        throw new Error("Contact data not available");
+        throw new Error("Datos de contacto no disponibles");
       }
 
       const updatedContact: EmergencyContact = {
@@ -107,13 +107,13 @@ export default function EditContactScreen() {
 
       await updateContact(updatedContact);
 
-      Alert.alert("Success", "Emergency contact updated", [
+      Alert.alert("Éxito", "Contacto de emergencia actualizado", [
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to update contact"
+        error instanceof Error ? error.message : "Error al actualizar contacto"
       );
     } finally {
       setIsSaving(false);
@@ -124,7 +124,7 @@ export default function EditContactScreen() {
     return (
       <ScreenContainer>
         <View className="flex-1 items-center justify-center">
-          <Text style={{ color: colors.foreground }}>Loading...</Text>
+          <Text style={{ color: colors.foreground }}>Cargando...</Text>
         </View>
       </ScreenContainer>
     );
@@ -147,10 +147,10 @@ export default function EditContactScreen() {
                 className="text-2xl font-bold"
                 style={{ color: colors.foreground }}
               >
-                Edit Emergency Contact
+                Editar Contacto de Emergencia
               </Text>
               <Text className="text-sm mt-1" style={{ color: colors.muted }}>
-                Update the contact information
+                Actualiza la información del contacto
               </Text>
             </View>
 
@@ -161,12 +161,12 @@ export default function EditContactScreen() {
                   className="text-sm font-medium mb-2"
                   style={{ color: colors.foreground }}
                 >
-                  Full Name *
+                  Nombre Completo *
                 </Text>
                 <TextInput
                   value={name}
                   onChangeText={setName}
-                  placeholder="John Doe"
+                  placeholder="Juan Pérez"
                   placeholderTextColor={colors.muted}
                   autoCapitalize="words"
                   returnKeyType="next"
@@ -181,7 +181,7 @@ export default function EditContactScreen() {
                   className="text-sm font-medium mb-2"
                   style={{ color: colors.foreground }}
                 >
-                  Phone Number *
+                  Número de Teléfono *
                 </Text>
                 <TextInput
                   value={phoneNumber}
@@ -195,7 +195,7 @@ export default function EditContactScreen() {
                   style={{ color: colors.foreground }}
                 />
                 <Text className="text-xs mt-1" style={{ color: colors.muted }}>
-                  Include country code for international numbers
+                  Incluye el código de país para números internacionales
                 </Text>
               </View>
 
@@ -204,7 +204,7 @@ export default function EditContactScreen() {
                   className="text-sm font-medium mb-2"
                   style={{ color: colors.foreground }}
                 >
-                  Alert Method *
+                  Método de Alerta *
                 </Text>
                 <View className="flex-row gap-3">
                   <TouchableOpacity
@@ -238,7 +238,7 @@ export default function EditContactScreen() {
                       className="text-xs text-center mt-1"
                       style={{ color: colors.muted }}
                     >
-                      Text message
+                      Mensaje de texto
                     </Text>
                   </TouchableOpacity>
 
@@ -275,7 +275,7 @@ export default function EditContactScreen() {
                       className="text-xs text-center mt-1"
                       style={{ color: colors.muted }}
                     >
-                      Instant message
+                      Mensaje instantáneo
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -293,7 +293,7 @@ export default function EditContactScreen() {
                 }}
               >
                 <Text className="text-white text-base font-semibold">
-                  {isSaving ? "Saving..." : "Save Changes"}
+                  {isSaving ? "Guardando..." : "Guardar Cambios"}
                 </Text>
               </TouchableOpacity>
 
@@ -306,7 +306,7 @@ export default function EditContactScreen() {
                 }}
               >
                 <Text style={{ color: colors.foreground }} className="text-base font-semibold">
-                  Cancel
+                  Cancelar
                 </Text>
               </TouchableOpacity>
             </View>

@@ -13,10 +13,14 @@ export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   /** Unique device identifier. Each device is linked to one user account. */
   deviceId: varchar("deviceId", { length: 255 }).notNull().unique(),
+  /** Unique username for login. */
+  username: varchar("username", { length: 100 }).notNull().unique(),
   /** Bcrypt hash of the user's 6-digit PIN. */
   pinHash: varchar("pinHash", { length: 255 }).notNull(),
   /** Optional display name for the user. */
   name: text("name"),
+  /** Whether the user's subscription is active (controlled by admin). */
+  isActive: int("isActive").default(0).notNull(),
   /** User role: 'user' or 'admin'. */
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

@@ -164,13 +164,19 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
 
+          {/* Register Button */}
+          <TouchableOpacity
+            onPress={() => router.push("/register")}
+            disabled={isLoggingIn}
+            className="h-14 rounded-xl items-center justify-center border-2 border-primary bg-background"
+          >
+            <Text className="text-primary text-lg font-bold">Crear Cuenta Nueva</Text>
+          </TouchableOpacity>
+
           {/* Help Text */}
           <View className="mt-4">
             <Text className="text-muted text-xs text-center">
-              ¿No tienes acceso? Contacta a tu administrador
-            </Text>
-            <Text className="text-muted text-xs text-center mt-2">
-              Desarrollo: Usa el nombre de usuario "driver1" con PIN 123456
+              Crea una cuenta para comenzar a usar el botón de pánico
             </Text>
           </View>
         </View>

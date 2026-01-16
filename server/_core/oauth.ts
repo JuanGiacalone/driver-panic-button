@@ -6,18 +6,71 @@ import { sdk } from "./sdk";
 
 
 export function registerAuthRoutes(app: Express) {
-  // PIN-based login
-  app.post("/api/auth/login", async (req: Request, res: Response) => {
-    const { deviceId, pin } = req.body;
+  // User registration
+  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    const { deviceId, username, pin, name } = req.body;
 
-    if (!deviceId || !pin) {
-      res.status(400).json({ error: "deviceId and pin are required" });
+    if (!deviceId || !username || !pin) {
+      res.status(400).json({ error: "deviceId, username y pin son requeridos" });
+      return;
+    }
+
+    // Validate PIN format (6 digits)
+    if (!/^\d{6}$/.test(pin)) {
+      res.status(400).json({ error: "El PIN debe ser de 6 dígitos" });
+      return;
+    }
+
+    // Validate username format (alphanumeric, 3-20 characters)
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      res.status(400).json({ error: "El nombre de usuario debe tener entre 3 y 20 caracteres alfanuméricos" });
+      return;
+    }
+
+    try {
+      const { getUserByUsername } = await import("../db");
+      const existingUser = await getUserByUsername(username);
+      
+      if (existingUser) {
+        res.status(409).json({ error: "Este nombre de usuario ya está registrado" });
+        return;
+      }
+
+      const { getUserByDeviceId } = await import("../db");
+      const existingDevice = await getUserByDeviceId(deviceId);
+      
+      if (existingDevice) {
+        res.status(409).json({ error: "Este dispositivo ya tiene un usuario registrado" });
+        return;
+      }
+
+      const { createUser } = await import("./pin-auth");
+      await createUser(deviceId, username, pin, name);
+
+      res.json({
+        success: true,
+        message: "Registro exitoso. Tu cuenta será activada por el administrador.",
+      });
+    } catch (error) {
+      console.error("[Auth] Registration failed:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Error al registrar usuario"
+      });
+    }
+  });
+
+  // PIN-based login with username
+  app.post("/api/auth/login", async (req: Request, res: Response) => {
+    const { username, deviceId, pin } = req.body;
+
+    if (!username || !deviceId || !pin) {
+      res.status(400).json({ error: "username, deviceId y pin son requeridos" });
       return;
     }
 
     try {
       const { authenticateUser, generateSessionToken } = await import("./pin-auth");
-      const user = await authenticateUser(deviceId, pin);
+      const user = await authenticateUser(username, deviceId, pin);
       const sessionToken = await generateSessionToken(deviceId);
 
       const cookieOptions = getSessionCookieOptions(req);

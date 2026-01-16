@@ -1,5 +1,5 @@
 import * as bcrypt from "bcryptjs";
-import { getUserByPinHash, createUser as dbCreateUser, updateUserPin as dbUpdateUserPin, getUserByDeviceId } from "../db";
+import { getUserByPinHash, createUser as dbCreateUser, updateUserPin as dbUpdateUserPin, getUserByDeviceId, getUserByUsername } from "../db";
 import { sdk } from "./sdk";
 
 /**
@@ -28,32 +28,43 @@ export async function generateSessionToken(deviceId: string): Promise<string> {
 }
 
 /**
- * Create a new user linked to a device (admin only).
+ * Create a new user with username and PIN (registration).
  */
 export async function createUser(
     deviceId: string,
+    username: string,
     pin: string,
     name?: string,
     role?: "user" | "admin"
 ): Promise<void> {
     const pinHash = await hashPin(pin);
-    await dbCreateUser(deviceId, pinHash, name, role);
+    await dbCreateUser(deviceId, username, pinHash, name, role);
 }
 
 /**
- * Authenticate a user with their device PIN.
+ * Authenticate a user with username and PIN.
  */
-export async function authenticateUser(deviceId: string, pin: string) {
-    const user = await getUserByDeviceId(deviceId);
+export async function authenticateUser(username: string, deviceId: string, pin: string) {
+    const user = await getUserByUsername(username);
 
     if (!user) {
-        throw new Error("Invalid PIN");
+        throw new Error("Usuario o PIN inválido");
+    }
+
+    // Check if user's device matches
+    if (user.deviceId !== deviceId) {
+        throw new Error("Este usuario está registrado en otro dispositivo");
     }
 
     const isValid = await verifyPin(pin, user.pinHash);
 
     if (!isValid) {
-        throw new Error("Invalid PIN");
+        throw new Error("Usuario o PIN inválido");
+    }
+
+    // Check if user is active
+    if (user.isActive !== 1) {
+        throw new Error("Tu cuenta está inactiva. Contacta al administrador para activarla.");
     }
 
     // Update last signed in
@@ -61,7 +72,7 @@ export async function authenticateUser(deviceId: string, pin: string) {
     if (db) {
         const { users } = await import("../../drizzle/schema");
         const { eq } = await import("drizzle-orm");
-        await (await db).update(users).set({ lastSignedIn: new Date() }).where(eq(users.deviceId, deviceId));
+        await (await db).update(users).set({ lastSignedIn: new Date() }).where(eq(users.username, username));
     }
 
     return user;

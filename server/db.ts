@@ -100,6 +100,7 @@ export async function getUserByPinHash(pinHash: string) {
 
 export async function createUser(
   deviceId: string,
+  username: string,
   pinHash: string,
   name?: string,
   role?: "user" | "admin"
@@ -111,11 +112,33 @@ export async function createUser(
 
   await db.insert(users).values({
     deviceId,
+    username,
     pinHash,
     name: name ?? null,
+    isActive: 0, // Inactive by default, admin must activate
     role: role ?? "user",
     lastSignedIn: new Date(),
   });
+}
+
+export async function getUserByUsername(username: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateUserActiveStatus(userId: number, isActive: boolean): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(users).set({ isActive: isActive ? 1 : 0 }).where(eq(users.id, userId));
 }
 
 export async function updateUserPin(deviceId: string, pinHash: string): Promise<void> {

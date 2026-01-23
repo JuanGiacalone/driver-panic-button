@@ -191,10 +191,15 @@ class SDKServer {
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
-      const { deviceId, appId, name } = payload as Record<string, unknown>;
+      let { deviceId, appId, name } = payload as Record<string, unknown>;
+
+      // Support legacy sessions that used 'openId' instead of 'deviceId'
+      if (!isNonEmptyString(deviceId) && isNonEmptyString(payload.openId)) {
+        deviceId = payload.openId;
+      }
 
       if (!isNonEmptyString(deviceId) || !isNonEmptyString(appId) || !isNonEmptyString(name)) {
-        console.warn("[Auth] Session payload missing required fields");
+        console.warn("[Auth] Session payload missing required fields:", { deviceId, appId, name });
         return null;
       }
 
@@ -204,7 +209,7 @@ class SDKServer {
         name,
       };
     } catch (error) {
-      console.warn("[Auth] Session verification failed", String(error));
+      console.warn("[Auth] Session verification failed:", error instanceof Error ? error.message : String(error));
       return null;
     }
   }
@@ -247,17 +252,17 @@ class SDKServer {
       throw ForbiddenError("Invalid session cookie");
     }
 
-    const sessionDeviceId = session.deviceId;
+    const sessionUsername = session.name;
+    console.log(`[Auth] Authenticating request for session username: "${sessionUsername}"`);
     const signedInAt = new Date();
-    let user = await db.getUserByDeviceId(sessionDeviceId);
+    let user = await db.getUserByUsername(sessionUsername);
 
     if (!user) {
       throw ForbiddenError("User not found");
     }
 
-    await db.upsertUser({
-      deviceId: user.deviceId,
-      lastSignedIn: signedInAt,
+    await db.updateUser(user.id, {
+      lastSignedIn: signedInAt.toUTCString(),
     });
 
     return user;

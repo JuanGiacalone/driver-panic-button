@@ -22,15 +22,23 @@ async function seed() {
     // Create default users
     const defaultUsers = [
         {
+            username: "test-user",
             deviceId: "dev-device-user",
+            phone: "+1234567890",
+            email: "user@example.com",
             pinHash: userPinHash,
             name: "Test User",
+            isActive: 1,
             role: "user" as const,
         },
         {
+            username: "test-admin",
             deviceId: "dev-device-admin",
+            phone: "+1098765432",
+            email: "admin@example.com",
             pinHash: adminPinHash,
             name: "Admin User",
+            isActive: 1,
             role: "admin" as const,
         },
     ];
@@ -42,8 +50,13 @@ async function seed() {
                 .values(user)
                 .onDuplicateKeyUpdate({
                     set: {
+                        username: user.username,
+                        deviceId: user.deviceId,
+                        phone: user.phone,
+                        email: user.email,
                         pinHash: user.pinHash,
                         name: user.name,
+                        isActive: user.isActive,
                         role: user.role,
                     },
                 });

@@ -3,7 +3,7 @@ import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  Pressable,
   Alert,
   Platform,
 } from "react-native";
@@ -109,7 +109,7 @@ export default function ContactsScreen() {
           </View>
         </View>
         <View className="flex-row gap-2">
-          <TouchableOpacity
+          <Pressable
             onPress={() => handleEditContact(item)}
             className="bg-background border border-border rounded-lg px-3 py-2"
             style={({ pressed }: { pressed: boolean }) => ({
@@ -119,8 +119,8 @@ export default function ContactsScreen() {
             })}
           >
             <Text style={{ color: colors.primary, fontSize: 12 }}>Editar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             onPress={() => handleDeleteContact(item)}
             className="bg-error/10 border border-error rounded-lg px-3 py-2"
             style={({ pressed }: { pressed: boolean }) => ({
@@ -128,7 +128,7 @@ export default function ContactsScreen() {
             })}
           >
             <Text style={{ color: colors.error, fontSize: 12 }}>Eliminar</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     </View>
@@ -154,7 +154,7 @@ export default function ContactsScreen() {
       >
         Agrega al menos un contacto de emergencia para activar el botón de pánico
       </Text>
-      <TouchableOpacity
+      <Pressable
         onPress={handleAddContact}
         className="bg-primary rounded-xl px-6 py-3"
         style={({ pressed }: { pressed: boolean }) => ({
@@ -163,7 +163,7 @@ export default function ContactsScreen() {
         })}
       >
         <Text className="text-white font-semibold">Agregar Primer Contacto</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 
@@ -185,7 +185,7 @@ export default function ContactsScreen() {
             </Text>
           </View>
           {contacts.length > 0 && (
-            <TouchableOpacity
+            <Pressable
               onPress={handleAddContact}
               className="bg-primary rounded-full w-12 h-12 items-center justify-center"
               style={({ pressed }: { pressed: boolean }) => ({
@@ -194,7 +194,7 @@ export default function ContactsScreen() {
               })}
             >
               <Text className="text-white text-2xl font-light">+</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 

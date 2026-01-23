@@ -19,10 +19,10 @@ export async function verifyPin(pin: string, hash: string): Promise<boolean> {
 /**
  * Generate a session token for a device.
  */
-export async function generateSessionToken(deviceId: string): Promise<string> {
+export async function generateSessionToken(deviceId: string, username: string): Promise<string> {
     const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
     return sdk.createSessionToken(deviceId, {
-        name: deviceId,
+        name: username,
         expiresInMs: ONE_YEAR_MS,
     });
 }
@@ -35,10 +35,12 @@ export async function createUser(
     username: string,
     pin: string,
     name?: string,
-    role?: "user" | "admin"
+    role?: "user" | "admin",
+    phone?: string,
+    email?: string
 ): Promise<void> {
     const pinHash = await hashPin(pin);
-    await dbCreateUser(deviceId, username, pinHash, name, role);
+    await dbCreateUser(deviceId, username, pinHash, name, role, phone, email);
 }
 
 /**
@@ -51,9 +53,12 @@ export async function authenticateUser(username: string, deviceId: string, pin: 
         throw new Error("Usuario o PIN inválido");
     }
 
-    // Check if user's device matches
-    if (user.deviceId !== deviceId) {
-        throw new Error("Este usuario está registrado en otro dispositivo");
+    // Check if user's device matches in production
+    if (process.env.NODE_ENV !== "development") {
+        if (user.deviceId !== deviceId) {
+            console.log("Device ID mismatch", user.deviceId, deviceId);
+            throw new Error("Este usuario está registrado en otro dispositivo");
+        }
     }
 
     const isValid = await verifyPin(pin, user.pinHash);
@@ -72,7 +77,7 @@ export async function authenticateUser(username: string, deviceId: string, pin: 
     if (db) {
         const { users } = await import("../../drizzle/schema");
         const { eq } = await import("drizzle-orm");
-        await (await db).update(users).set({ lastSignedIn: new Date() }).where(eq(users.username, username));
+        await (await db).update(users).set({ lastSignedIn: new Date().toUTCString() }).where(eq(users.username, username));
     }
 
     return user;

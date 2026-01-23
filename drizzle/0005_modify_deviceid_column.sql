@@ -1,0 +1,1 @@
+ALTER TABLE `users` MODIFY COLUMN `deviceId` varchar(255) DEFAULT NULL;

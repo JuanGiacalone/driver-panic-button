@@ -58,11 +58,11 @@ export async function upsertUser(user: Partial<InsertUser> & { deviceId: string 
     }
 
     if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
+      values.lastSignedIn = new Date().toUTCString();
     }
 
     if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
+      updateSet.lastSignedIn = new Date().toUTCString();
     }
 
     await db.insert(users).values(values as any).onDuplicateKeyUpdate({
@@ -103,7 +103,9 @@ export async function createUser(
   username: string,
   pinHash: string,
   name?: string,
-  role?: "user" | "admin"
+  role?: "user" | "admin",
+  phone: string = "",
+  email: string = ""
 ): Promise<void> {
   const db = await getDb();
   if (!db) {
@@ -113,11 +115,13 @@ export async function createUser(
   await db.insert(users).values({
     deviceId,
     username,
+    phone: phone || "0000000000",
     pinHash,
-    name: name ?? null,
+    name: name ?? "New User",
+    email: email || "user@example.com",
     isActive: 0, // Inactive by default, admin must activate
     role: role ?? "user",
-    lastSignedIn: new Date(),
+    lastSignedIn: new Date().toUTCString(),
   });
 }
 
@@ -147,7 +151,7 @@ export async function updateUserPaymentDate(userId: number, paymentDate: Date): 
     throw new Error("Database not available");
   }
 
-  await db.update(users).set({ lastPaymentDate: paymentDate }).where(eq(users.id, userId));
+  await db.update(users).set({ lastPaymentDate: paymentDate.toUTCString() }).where(eq(users.id, userId));
 }
 
 export async function getUsersWithExpiredPayments(daysThreshold: number = 30): Promise<any[]> {
@@ -166,9 +170,18 @@ export async function getUsersWithExpiredPayments(daysThreshold: number = 30): P
     .where(eq(users.isActive, 1));
 
   // Filter users whose lastPaymentDate is older than threshold or null
-  return result.filter(user => 
+  return result.filter(user =>
     !user.lastPaymentDate || new Date(user.lastPaymentDate) < thresholdDate
   );
+}
+
+export async function updateUser(userId: number, data: Partial<InsertUser>): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(users).set(data).where(eq(users.id, userId));
 }
 
 export async function updateUserPin(deviceId: string, pinHash: string): Promise<void> {

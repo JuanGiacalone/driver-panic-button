@@ -29,6 +29,27 @@
       "when": 1768604196286,
       "tag": "0003_material_skaar",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1769121795129,
+      "tag": "0004_add_phone_column",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1769122334153,
+      "tag": "0005_modify_deviceid_column",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1769122807279,
+      "tag": "0006_outstanding_preak",
+      "breakpoints": true
     }
   ]
 }

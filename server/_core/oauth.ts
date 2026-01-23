@@ -8,10 +8,10 @@ import { sdk } from "./sdk";
 export function registerAuthRoutes(app: Express) {
   // User registration
   app.post("/api/auth/register", async (req: Request, res: Response) => {
-    const { deviceId, username, pin, name } = req.body;
+    const { deviceId, username, pin, name, phone, email } = req.body;
 
-    if (!deviceId || !username || !pin) {
-      res.status(400).json({ error: "deviceId, username y pin son requeridos" });
+    if (!deviceId || !username || !pin || !phone || !email) {
+      res.status(400).json({ error: "deviceId, username, pin, phone y email son requeridos" });
       return;
     }
 
@@ -30,7 +30,7 @@ export function registerAuthRoutes(app: Express) {
     try {
       const { getUserByUsername } = await import("../db");
       const existingUser = await getUserByUsername(username);
-      
+
       if (existingUser) {
         res.status(409).json({ error: "Este nombre de usuario ya está registrado" });
         return;
@@ -38,14 +38,14 @@ export function registerAuthRoutes(app: Express) {
 
       const { getUserByDeviceId } = await import("../db");
       const existingDevice = await getUserByDeviceId(deviceId);
-      
+
       if (existingDevice) {
         res.status(409).json({ error: "Este dispositivo ya tiene un usuario registrado" });
         return;
       }
 
       const { createUser } = await import("./pin-auth");
-      await createUser(deviceId, username, pin, name);
+      await createUser(deviceId, username, pin, name, undefined, phone, email);
 
       res.json({
         success: true,
@@ -71,7 +71,7 @@ export function registerAuthRoutes(app: Express) {
     try {
       const { authenticateUser, generateSessionToken } = await import("./pin-auth");
       const user = await authenticateUser(username, deviceId, pin);
-      const sessionToken = await generateSessionToken(deviceId);
+      const sessionToken = await generateSessionToken(deviceId, user.username);
 
       const cookieOptions = getSessionCookieOptions(req);
       const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
@@ -85,7 +85,7 @@ export function registerAuthRoutes(app: Express) {
           deviceId: user.deviceId,
           name: user.name,
           role: user.role,
-          lastSignedIn: user.lastSignedIn.toISOString(),
+          lastSignedIn: user.lastSignedIn,
         },
       });
     } catch (error) {
@@ -108,11 +108,11 @@ export function registerAuthRoutes(app: Express) {
       const user = await sdk.authenticateRequest(req);
       res.json({
         user: {
-          id: (user as any)?.id ?? null,
-          deviceId: (user as any)?.deviceId ?? null,
-          name: (user as any)?.name ?? null,
-          role: (user as any)?.role ?? null,
-          lastSignedIn: ((user as any)?.lastSignedIn ?? new Date()).toISOString(),
+          id: user.id,
+          deviceId: user.deviceId,
+          name: user.name,
+          role: user.role,
+          lastSignedIn: user.lastSignedIn,
         },
       });
     } catch (error) {

@@ -1,5 +1,5 @@
 import { View, type ViewProps } from "react-native";
-import { SafeAreaView, type Edge } from "react-native-safe-area-context";
+import { useSafeAreaInsets, type Edge } from "react-native-safe-area-context";
 
 import { cn } from "@/lib/utils";
 
@@ -47,6 +47,8 @@ export function ScreenContainer({
   style,
   ...props
 }: ScreenContainerProps) {
+  const insets = useSafeAreaInsets();
+
   return (
     <View
       className={cn(
@@ -56,13 +58,21 @@ export function ScreenContainer({
       )}
       {...props}
     >
-      <SafeAreaView
-        edges={edges}
-        className={cn("flex-1", safeAreaClassName)}
-        style={style}
+      <View
+        style={[
+          {
+            flex: 1,
+            paddingTop: edges.includes("top") ? insets.top : 0,
+            paddingBottom: edges.includes("bottom") ? insets.bottom : 0,
+            paddingLeft: edges.includes("left") ? insets.left : 0,
+            paddingRight: edges.includes("right") ? insets.right : 0,
+          },
+          style,
+        ]}
+        className={safeAreaClassName}
       >
         <View className={cn("flex-1", className)}>{children}</View>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

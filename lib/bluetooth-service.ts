@@ -1,5 +1,5 @@
 import { BleManager, Device, Characteristic } from "react-native-ble-plx";
-import { Platform, NativeEventEmitter, NativeModules } from "react-native";
+import { Platform, NativeEventEmitter, NativeModules, PermissionsAndroid } from "react-native";
 import { getSettings, saveSettings } from "./storage";
 import type { AppSettings } from "@/types";
 
@@ -74,9 +74,33 @@ class BluetoothService {
         // iOS handles permissions automatically through Info.plist
         return true;
       } else if (Platform.OS === "android") {
-        // Android 12+ requires BLUETOOTH_SCAN and BLUETOOTH_CONNECT permissions
-        // These should be declared in app.config.ts
-        return true;
+        // Request multiple permissions for Android 12+
+        if (Platform.Version >= 31) {
+          const results = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          ]);
+
+          return (
+            results[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] === PermissionsAndroid.RESULTS.GRANTED &&
+            results[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] === PermissionsAndroid.RESULTS.GRANTED &&
+            results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] === PermissionsAndroid.RESULTS.GRANTED
+          );
+        } else {
+          // Legacy permissions for Android < 12
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+              title: "Permiso de ubicación",
+              message: "Esta aplicación necesita permiso de ubicación para buscar dispositivos Bluetooth",
+              buttonNeutral: "Cancelar",
+              buttonNegative: "No",
+              buttonPositive: "Sí",
+            }
+          );
+          return granted === PermissionsAndroid.RESULTS.GRANTED;
+        }
       }
       return true;
     } catch (error) {

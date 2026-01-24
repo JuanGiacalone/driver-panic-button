@@ -21,8 +21,14 @@ export async function getDeviceId(): Promise<string> {
     }
 
     // For native platforms, use expo-application and expo-device
-    const androidId = await Application.getAndroidId();
-    const iosIdForVendor = await Application.getIosIdForVendorAsync();
+    let androidId: string | null = null;
+    let iosIdForVendor: string | null = null;
+
+    if (Platform.OS === "android") {
+        androidId = await Application.getAndroidId();
+    } else if (Platform.OS === "ios") {
+        iosIdForVendor = await Application.getIosIdForVendorAsync();
+    }
 
     if (androidId) {
         return `android-${androidId}`;

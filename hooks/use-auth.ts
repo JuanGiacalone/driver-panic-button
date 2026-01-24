@@ -30,6 +30,7 @@ export function useAuth(options?: UseAuthOptions) {
             id: apiUser.id,
             deviceId: apiUser.deviceId,
             name: apiUser.name,
+            email: apiUser.email,
             role: apiUser.role,
             lastSignedIn: new Date(apiUser.lastSignedIn),
           };

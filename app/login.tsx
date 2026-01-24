@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
   const handleLogin = async (finalPin?: string) => {
     const pinToUse = finalPin || pin;
-    
+
     if (!username) {
       setError("Por favor ingresa tu nombre de usuario");
       return;
@@ -57,6 +57,7 @@ export default function LoginScreen() {
           id: result.user.id,
           deviceId: result.user.deviceId,
           name: result.user.name,
+          email: result.user.email,
           role: result.user.role,
           lastSignedIn: new Date(result.user.lastSignedIn),
         };

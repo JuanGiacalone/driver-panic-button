@@ -123,6 +123,7 @@ export async function getMe(): Promise<{
   id: number;
   deviceId: string;
   name: string | null;
+  email: string | null;
   role: string | null;
   lastSignedIn: string;
 } | null> {

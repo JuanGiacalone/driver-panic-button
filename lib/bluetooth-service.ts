@@ -28,14 +28,25 @@ class BluetoothService {
   private characteristic: Characteristic | null = null;
   private listeners: ((event: BluetoothButtonEvent) => void)[] = [];
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Get or create BleManager instance
    */
   private getBleManager(): BleManager {
     if (!this.bleManager) {
-      this.bleManager = new BleManager();
+      try {
+        this.bleManager = new BleManager();
+      } catch (error) {
+        if (Platform.OS !== "web") {
+          throw new Error(
+            "Módulo nativo de Bluetooth no encontrado. " +
+            "BLE requiere un Development Build y no funciona en Expo Go. " +
+            "Por favor ejecuta 'npx expo run:android' para crear un build de desarrollo."
+          );
+        }
+        throw error;
+      }
     }
     return this.bleManager;
   }
@@ -45,7 +56,8 @@ class BluetoothService {
    */
   async initialize(): Promise<void> {
     try {
-      const state = await this.getBleManager().state();
+      const manager = this.getBleManager();
+      const state = await manager.state();
       console.log("BLE State:", state);
     } catch (error) {
       console.error("Failed to initialize BLE:", error);

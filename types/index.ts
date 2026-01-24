@@ -1,4 +1,4 @@
-export type AlertMethod = "sms" | "whatsapp";
+export type AlertMethod = "sms";
 
 export interface EmergencyContact {
   id: string;

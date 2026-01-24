@@ -54,7 +54,7 @@ export default function HomeScreen() {
   const requestPermissions = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     setHasLocationPermission(status === "granted");
-    
+
     if (status === "granted") {
       await Location.requestBackgroundPermissionsAsync();
     }
@@ -98,7 +98,7 @@ export default function HomeScreen() {
       );
 
       const failedCount = results.filter((r) => !r.success).length;
-      
+
       if (failedCount > 0) {
         Alert.alert(
           "Éxito Parcial",
@@ -120,8 +120,13 @@ export default function HomeScreen() {
     }
   };
 
-  if (!authLoading && !isAuthenticated) {
-    router.replace("/login");
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated]);
+
+  if (authLoading || !isAuthenticated) {
     return null;
   }
 

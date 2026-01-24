@@ -49,19 +49,6 @@ describe("Edit Contact Functionality", () => {
     expect(found?.phoneNumber).toBe("+1 (555) 987-6543");
   });
 
-  it("should update alert method", async () => {
-    await addContact(mockContact);
-
-    const updatedContact = {
-      ...mockContact,
-      alertMethod: "whatsapp" as const,
-    };
-    await updateContact(updatedContact);
-
-    const contacts = await getContacts();
-    const found = contacts.find((c) => c.id === mockContact.id);
-    expect(found?.alertMethod).toBe("whatsapp");
-  });
 
   it("should update multiple fields at once", async () => {
     await addContact(mockContact);
@@ -70,7 +57,7 @@ describe("Edit Contact Functionality", () => {
       id: mockContact.id,
       name: "Jane Smith",
       phoneNumber: "+44 (20) 7123 4567",
-      alertMethod: "whatsapp",
+      alertMethod: "sms",
     };
     await updateContact(updatedContact);
 
@@ -78,7 +65,7 @@ describe("Edit Contact Functionality", () => {
     const found = contacts.find((c) => c.id === mockContact.id);
     expect(found?.name).toBe("Jane Smith");
     expect(found?.phoneNumber).toBe("+44 (20) 7123 4567");
-    expect(found?.alertMethod).toBe("whatsapp");
+    expect(found?.alertMethod).toBe("sms");
   });
 
   it("should not affect other contacts when updating", async () => {
@@ -86,7 +73,7 @@ describe("Edit Contact Functionality", () => {
       id: "contact-2",
       name: "Bob Smith",
       phoneNumber: "+1 (555) 999-8888",
-      alertMethod: "whatsapp",
+      alertMethod: "sms",
     };
 
     await addContact(mockContact);

@@ -184,72 +184,38 @@ export default function AddContactScreen() {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={() => {
-                      setAlertMethod("whatsapp");
-                      if (Platform.OS !== "web") {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      }
-                    }}
-                    className="flex-1 border rounded-xl p-4"
-                    style={{
-                      backgroundColor:
-                        alertMethod === "whatsapp"
-                          ? "#25D366" + "10"
-                          : colors.surface,
-                      borderColor:
-                        alertMethod === "whatsapp" ? "#25D366" : colors.border,
-                      borderWidth: alertMethod === "whatsapp" ? 2 : 1,
-                    }}
-                  >
-                    <Text
-                      className="text-center font-semibold"
-                      style={{
-                        color:
-                          alertMethod === "whatsapp" ? "#25D366" : colors.foreground,
-                      }}
-                    >
-                      WhatsApp
-                    </Text>
-                    <Text
-                      className="text-xs text-center mt-1"
-                      style={{ color: colors.muted }}
-                    >
-                      Mensaje instantáneo
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               </View>
             </View>
+          </View>
 
-            {/* Action Buttons */}
-            <View className="mt-8 gap-3">
-              <TouchableOpacity
-                onPress={handleSave}
-                disabled={isSaving}
-                className="bg-primary rounded-xl py-4 items-center"
-                style={{
-                  opacity: isSaving ? 0.6 : 1,
-                }}
-              >
-                <Text className="text-white text-base font-semibold">
-                  {isSaving ? "Guardando..." : "Guardar Contacto"}
-                </Text>
-              </TouchableOpacity>
+          {/* Action Buttons */}
+          <View className="mt-8 gap-3">
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={isSaving}
+              className="bg-primary rounded-xl py-4 items-center"
+              style={{
+                opacity: isSaving ? 0.6 : 1,
+              }}
+            >
+              <Text className="text-white text-base font-semibold">
+                {isSaving ? "Guardando..." : "Guardar Contacto"}
+              </Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => router.back()}
-                disabled={isSaving}
-                className="bg-surface border border-border rounded-xl py-4 items-center"
-                style={{
-                  opacity: isSaving ? 0.6 : 1,
-                }}
-              >
-                <Text style={{ color: colors.foreground }} className="text-base font-semibold">
-                  Cancelar
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              disabled={isSaving}
+              className="bg-surface border border-border rounded-xl py-4 items-center"
+              style={{
+                opacity: isSaving ? 0.6 : 1,
+              }}
+            >
+              <Text style={{ color: colors.foreground }} className="text-base font-semibold">
+                Cancelar
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

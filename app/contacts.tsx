@@ -92,19 +92,16 @@ export default function ContactsScreen() {
           <View
             className="self-start px-2 py-1 rounded-md"
             style={{
-              backgroundColor:
-                item.alertMethod === "sms"
-                  ? colors.primary + "20"
-                  : "#25D366" + "20",
+              backgroundColor: colors.primary + "20",
             }}
           >
             <Text
               className="text-xs font-medium"
               style={{
-                color: item.alertMethod === "sms" ? colors.primary : "#25D366",
+                color: colors.primary,
               }}
             >
-              {item.alertMethod === "sms" ? "SMS" : "WhatsApp"}
+              SMS
             </Text>
           </View>
         </View>

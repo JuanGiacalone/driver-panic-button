@@ -242,42 +242,6 @@ export default function EditContactScreen() {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={() => {
-                      setAlertMethod("whatsapp");
-                      if (Platform.OS !== "web") {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      }
-                    }}
-                    disabled={isSaving}
-                    className="flex-1 border rounded-xl p-4"
-                    style={{
-                      backgroundColor:
-                        alertMethod === "whatsapp"
-                          ? "#25D366" + "10"
-                          : colors.surface,
-                      borderColor:
-                        alertMethod === "whatsapp" ? "#25D366" : colors.border,
-                      borderWidth: alertMethod === "whatsapp" ? 2 : 1,
-                      opacity: isSaving ? 0.6 : 1,
-                    }}
-                  >
-                    <Text
-                      className="text-center font-semibold"
-                      style={{
-                        color:
-                          alertMethod === "whatsapp" ? "#25D366" : colors.foreground,
-                      }}
-                    >
-                      WhatsApp
-                    </Text>
-                    <Text
-                      className="text-xs text-center mt-1"
-                      style={{ color: colors.muted }}
-                    >
-                      Mensaje instantáneo
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               </View>
             </View>

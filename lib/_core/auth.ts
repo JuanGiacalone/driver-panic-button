@@ -6,6 +6,7 @@ export type User = {
   id: number;
   deviceId: string;
   name: string | null;
+  email: string | null;
   role: string | null;
   lastSignedIn: Date;
 };

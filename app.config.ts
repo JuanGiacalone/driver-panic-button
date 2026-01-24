@@ -4,16 +4,16 @@ import type { ExpoConfig } from "expo/config";
 
 // Bundle ID format: space.manus.<project_name_dots>.<timestamp>
 // e.g., "my-app" created at 2024-01-15 10:30:45 -> "space.manus.my.app.t20240115103045"
-const bundleId = "{{bundle_id}}";
+const bundleId = "com.driverpanicbutton.app";
 // Extract timestamp from bundle ID and prefix with "manus" for deep link scheme
 // e.g., "space.manus.my.app.t20240115103045" -> "manus20240115103045"
 const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
-const schemeFromBundleId = `manus${timestamp}`;
+const schemeFromBundleId = `tuse${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "Driver Panic Button",
-  appSlug: "{{project_name}}",
+  appName: "TUSE",
+  appSlug: "tuse-app",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
   logoUrl: "",

@@ -28,36 +28,18 @@ export function createAlertMessage(baseMessage: string, coords: LocationCoordina
  */
 async function sendSMS(phoneNumber: string, message: string): Promise<void> {
   const isAvailable = await SMS.isAvailableAsync();
-  
+
   if (!isAvailable) {
     throw new Error("SMS no está disponible en este dispositivo");
   }
 
   const { result } = await SMS.sendSMSAsync([phoneNumber], message);
-  
+
   if (result !== "sent") {
     throw new Error(`SMS no enviado: ${result}`);
   }
 }
 
-/**
- * Send WhatsApp message to a phone number
- */
-async function sendWhatsApp(phoneNumber: string, message: string): Promise<void> {
-  // Remove all non-numeric characters from phone number
-  const cleanNumber = phoneNumber.replace(/\D/g, "");
-  
-  // WhatsApp URL scheme
-  const url = `whatsapp://send?phone=${cleanNumber}&text=${encodeURIComponent(message)}`;
-  
-  const canOpen = await Linking.canOpenURL(url);
-  
-  if (!canOpen) {
-    throw new Error("WhatsApp no está instalado en este dispositivo");
-  }
-  
-  await Linking.openURL(url);
-}
 
 /**
  * Send alert to a single contact
@@ -70,9 +52,9 @@ async function sendAlertToContact(
     if (contact.alertMethod === "sms") {
       await sendSMS(contact.phoneNumber, message);
     } else {
-      await sendWhatsApp(contact.phoneNumber, message);
+      throw new Error(`Método de alerta no soportado: ${contact.alertMethod}`);
     }
-    
+
     return {
       success: true,
       contact,
@@ -95,12 +77,12 @@ export async function sendAlertsToContacts(
   coordinates: LocationCoordinates
 ): Promise<AlertResult[]> {
   const message = createAlertMessage(baseMessage, coordinates);
-  
+
   // Send alerts in parallel
   const results = await Promise.all(
     contacts.map((contact) => sendAlertToContact(contact, message))
   );
-  
+
   return results;
 }
 
@@ -114,16 +96,3 @@ export async function isSMSAvailable(): Promise<boolean> {
   return await SMS.isAvailableAsync();
 }
 
-/**
- * Check if WhatsApp is available on the device
- */
-export async function isWhatsAppAvailable(): Promise<boolean> {
-  if (Platform.OS === "web") {
-    return false;
-  }
-  try {
-    return await Linking.canOpenURL("whatsapp://send");
-  } catch {
-    return false;
-  }
-}

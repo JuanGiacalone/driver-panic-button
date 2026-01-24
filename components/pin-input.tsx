@@ -77,14 +77,14 @@ export function PinInput({ length = 6, onComplete, onChangePin, error = false }:
                 <View
                     key={index}
                     className={`w-14 h-16 rounded-xl border-2 items-center justify-center ${error
-                            ? "border-error bg-error/10"
-                            : pin[index]
-                                ? "border-primary bg-primary/10"
-                                : "border-border bg-background"
+                        ? "border-error bg-error/10"
+                        : pin[index]
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-background"
                         }`}
                 >
                     <TextInput
-                        ref={(ref) => (inputRefs.current[index] = ref)}
+                        ref={(ref) => { inputRefs.current[index] = ref; }}
                         className="text-2xl font-bold text-center text-foreground w-full h-full"
                         keyboardType="number-pad"
                         maxLength={1}

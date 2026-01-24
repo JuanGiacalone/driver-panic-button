@@ -62,7 +62,7 @@ describe("Storage - Emergency Contacts", () => {
       id: "2",
       name: "Jane Smith",
       phoneNumber: "+0987654321",
-      alertMethod: "whatsapp",
+      alertMethod: "sms",
     };
 
     vi.mocked(AsyncStorage.getItem).mockResolvedValue(
@@ -89,7 +89,7 @@ describe("Storage - Emergency Contacts", () => {
         id: "2",
         name: "Jane Smith",
         phoneNumber: "+0987654321",
-        alertMethod: "whatsapp",
+        alertMethod: "sms",
       },
     ];
 
@@ -97,7 +97,7 @@ describe("Storage - Emergency Contacts", () => {
       id: "1",
       name: "John Updated",
       phoneNumber: "+1111111111",
-      alertMethod: "whatsapp",
+      alertMethod: "sms",
     };
 
     vi.mocked(AsyncStorage.getItem).mockResolvedValue(JSON.stringify(contacts));
@@ -122,7 +122,7 @@ describe("Storage - Emergency Contacts", () => {
         id: "2",
         name: "Jane Smith",
         phoneNumber: "+0987654321",
-        alertMethod: "whatsapp",
+        alertMethod: "sms",
       },
     ];
 

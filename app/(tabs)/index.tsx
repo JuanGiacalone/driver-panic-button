@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text, TouchableOpacity, Platform, Alert, Modal } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as Location from "expo-location";
 import { ScreenContainer } from "@/components/screen-container";
@@ -23,11 +23,13 @@ export default function HomeScreen() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
 
-  // Load contacts and check permissions
-  useEffect(() => {
-    loadContacts();
-    checkPermissions();
-  }, []);
+  // Reload contacts and check permissions when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadContacts();
+      checkPermissions();
+    }, [])
+  );
 
   // Subscribe to Bluetooth button press events
   useEffect(() => {
@@ -47,8 +49,22 @@ export default function HomeScreen() {
   };
 
   const checkPermissions = async () => {
-    const { status } = await Location.getForegroundPermissionsAsync();
-    setHasLocationPermission(status === "granted");
+    const { status: foregroundStatus } = await Location.getForegroundPermissionsAsync();
+    const { status: backgroundStatus } = await Location.getBackgroundPermissionsAsync();
+
+    const allGranted = foregroundStatus === "granted" && backgroundStatus === "granted";
+    setHasLocationPermission(allGranted);
+
+    if (foregroundStatus === "granted" && backgroundStatus !== "granted" && Platform.OS !== "web") {
+      Alert.alert(
+        "⚠️ Protección Incompleta",
+        "Has otorgado permiso 'Solo al usar la app', lo cual impide que el Botón de Pánico funcione si tu teléfono está bloqueado o en tu bolsillo.\n\nPara tu seguridad, por favor cambia el permiso a 'Permitir todo el tiempo' en la configuración de tu dispositivo.",
+        [
+          { text: "Entendido", style: "cancel" },
+          { text: "Abrir Configuración", onPress: () => requestPermissions() }
+        ]
+      );
+    }
   };
 
   const requestPermissions = async () => {
@@ -143,7 +159,7 @@ export default function HomeScreen() {
                 className={`w-2 h-2 rounded-full ${hasLocationPermission ? "bg-success" : "bg-error"}`}
               />
               <Text className="text-sm text-muted">
-                {hasLocationPermission ? "GPS Listo" : "GPS Desactivado"}
+                {hasLocationPermission ? "GPS Listo" : "Falta Permiso Ubicación"}
               </Text>
             </View>
             <View className="flex-row items-center gap-2 flex-wrap justify-end">

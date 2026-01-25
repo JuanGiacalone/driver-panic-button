@@ -1,5 +1,7 @@
 import * as SMS from "expo-sms";
 import { Linking, Platform } from "react-native";
+// @ts-ignore
+import SmsAndroid from 'react-native-get-sms-android';
 import type { EmergencyContact, LocationCoordinates } from "@/types";
 
 export interface AlertResult {
@@ -27,6 +29,23 @@ export function createAlertMessage(baseMessage: string, coords: LocationCoordina
  * Send SMS to a phone number
  */
 async function sendSMS(phoneNumber: string, message: string): Promise<void> {
+  if (Platform.OS === 'android') {
+    return new Promise((resolve, reject) => {
+      SmsAndroid.autoSend(
+        phoneNumber,
+        message,
+        (fail: string) => {
+          reject(new Error(`SMS falló: ${fail}`));
+        },
+        (success: string) => {
+          console.log(`SMS enviado a ${phoneNumber}: ${success}`);
+          resolve();
+        }
+      );
+    });
+  }
+
+  // iOS / Web Fallback (requires user interaction)
   const isAvailable = await SMS.isAvailableAsync();
 
   if (!isAvailable) {

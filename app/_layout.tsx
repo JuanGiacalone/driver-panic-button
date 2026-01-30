@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { Platform } from "react-native";
+import { activateKeepAwakeAsync } from "expo-keep-awake";
 import "@/lib/_core/nativewind-pressable";
 import { ThemeProvider } from "@/lib/theme-provider";
 import {
@@ -37,6 +38,15 @@ export default function RootLayout() {
   // Initialize Manus runtime for cookie injection from parent container
   useEffect(() => {
     initManusRuntime();
+
+    // Gracefully handle keep-awake activation to prevent crashes on lock screen
+    if (Platform.OS !== "web") {
+      try {
+        activateKeepAwakeAsync();
+      } catch (e) {
+        console.warn("Failed to activate keep awake state:", e);
+      }
+    }
   }, []);
 
   const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {

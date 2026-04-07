@@ -1,20 +1,16 @@
 import * as TaskManager from "expo-task-manager";
-import * as BackgroundFetch from "expo-background-fetch";
+import * as Location from "expo-location";
 import { bluetoothService, type BluetoothButtonEvent } from "./bluetooth-service";
 import { getContacts, getSettings } from "./storage";
 import { sendAlertsToContacts } from "./alert-service";
 import { getCurrentLocation } from "./location-service";
+import { updatePanicLocation } from "./panic-service";
 
 const BLUETOOTH_TASK_NAME = "BLUETOOTH_PANIC_BUTTON_LISTENER";
-const BACKGROUND_FETCH_TASK_NAME = "BACKGROUND_PANIC_CHECK";
+const BACKGROUND_LOCATION_TASK_NAME = "BACKGROUND_PANIC_LOCATION";
 
-// Global variable to track if listener is active
 let bluetoothListenerActive = false;
 
-/**
- * Define the background task for Bluetooth button events
- * This runs when the app is in the background
- */
 TaskManager.defineTask(BLUETOOTH_TASK_NAME, async () => {
   try {
     console.log("Bluetooth panic button task triggered");
@@ -25,53 +21,61 @@ TaskManager.defineTask(BLUETOOTH_TASK_NAME, async () => {
   }
 });
 
-/**
- * Define the background fetch task for periodic checks
- */
-TaskManager.defineTask(BACKGROUND_FETCH_TASK_NAME, async () => {
-  try {
-    console.log("Background fetch task running");
-    return "NoData";
-  } catch (error) {
-    console.error("Background fetch task error:", error);
-    return "Failed";
+// Define the background location task configured for ~1 minute intervals
+TaskManager.defineTask(BACKGROUND_LOCATION_TASK_NAME, async ({ data, error }) => {
+  if (error) {
+    console.error("Background Location task error:", error);
+    return;
+  }
+  
+  if (data) {
+    const { locations } = data as { locations: Location.LocationObject[] };
+    if (locations && locations.length > 0) {
+      const { coords } = locations[0];
+      console.log("[Background Location] Relaying to backend:", coords);
+      await updatePanicLocation(coords.latitude, coords.longitude);
+    }
   }
 });
 
-/**
- * Register background tasks
- */
-export async function registerBackgroundTasks(): Promise<void> {
+export async function registerPanicLocationTask(): Promise<void> {
   try {
-    // Register background fetch task
-    await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK_NAME, {
-      minimumInterval: 60 * 15,
-      stopOnTerminate: false,
-      startOnBoot: true,
+    const { status } = await Location.getBackgroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.warn('Background location permission denied');
+      return;
+    }
+
+    await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK_NAME, {
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 60000, 
+      distanceInterval: 10,
+      deferredUpdatesInterval: 60000, 
+      showsBackgroundLocationIndicator: true,
+      foregroundService: {
+        notificationTitle: "Panic Mode Active",
+        notificationBody: "Continually sharing your location for emergency contacts",
+        notificationColor: "#FF0000",
+      },
     });
-
-    console.log("Background tasks registered");
+    console.log("Background location updates registered");
   } catch (error) {
-    console.error("Failed to register background tasks:", error);
+    console.error("Failed to register background location task:", error);
   }
 }
 
-/**
- * Unregister background tasks
- */
-export async function unregisterBackgroundTasks(): Promise<void> {
+export async function unregisterPanicLocationTask(): Promise<void> {
   try {
-    await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK_NAME);
-    console.log("Background tasks unregistered");
+    const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_LOCATION_TASK_NAME);
+    if (isRegistered) {
+      await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK_NAME);
+      console.log("Background location updates stopped");
+    }
   } catch (error) {
-    console.error("Failed to unregister background tasks:", error);
+    console.error("Failed to unregister background location task:", error);
   }
 }
 
-/**
- * Setup Bluetooth button listener for background panic triggers
- * This should be called when the app starts and a device is paired
- */
 export function setupBluetoothBackgroundListener(
   onPanicTriggered: (event: BluetoothButtonEvent) => void
 ): () => void {
@@ -82,7 +86,6 @@ export function setupBluetoothBackgroundListener(
 
   const unsubscribe = bluetoothService.onButtonPress(async (event) => {
     console.log("Bluetooth panic button pressed:", event);
-
     try {
       const contacts = await getContacts();
       const settings = await getSettings();
@@ -114,33 +117,27 @@ export function setupBluetoothBackgroundListener(
   };
 }
 
-/**
- * Check if Bluetooth listener is active
- */
 export function isBluetoothListenerActive(): boolean {
   return bluetoothListenerActive;
 }
 
-/**
- * Get registered background task status
- */
 export async function getBackgroundTaskStatus(): Promise<{
   isRegistered: boolean;
   taskName: string;
 }> {
   try {
     const isRegistered = await TaskManager.isTaskRegisteredAsync(
-      BACKGROUND_FETCH_TASK_NAME
+      BACKGROUND_LOCATION_TASK_NAME
     );
     return {
       isRegistered,
-      taskName: BACKGROUND_FETCH_TASK_NAME,
+      taskName: BACKGROUND_LOCATION_TASK_NAME,
     };
   } catch (error) {
     console.error("Failed to get background task status:", error);
     return {
       isRegistered: false,
-      taskName: BACKGROUND_FETCH_TASK_NAME,
+      taskName: BACKGROUND_LOCATION_TASK_NAME,
     };
   }
 }

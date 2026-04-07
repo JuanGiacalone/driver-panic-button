@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Panic Button</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles.css">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+</head>
+<body>
+  <!-- Login Overlay -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Panic Dashboard</h2>
+        <p>Inicia sesión como administrador</p>
+      </div>
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">Usuario</label>
+          <input type="text" id="username" required placeholder="admin_user">
+        </div>
+        <div class="input-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" required placeholder="••••••••">
+        </div>
+        <div class="input-group">
+          <label for="adminSecret">Clave Secreta de Admin</label>
+          <input type="password" id="adminSecret" placeholder="Opcional para crear admin" value="ADMIN_SUPER_SECRET_123">
+        </div>
+        <button type="submit" class="btn primary">Ingresar</button>
+        <div id="loginError" class="error-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main App Navbar -->
+  <nav class="navbar hidden">
+    <div class="brand">
+      <span class="pulse-dot"></span>
+      <h1>Control Center</h1>
+    </div>
+    <div class="nav-actions">
+      <span id="adminName" class="admin-name"></span>
+      <button id="logoutBtn" class="btn secondary">Salir</button>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <main class="dashboard-container hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h3>Alertas</h3>
+        <select id="statusFilter" class="select-filter">
+          <option value="active">Activas (En curso)</option>
+          <option value="resolved">Resueltas (Histórico)</option>
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <ul id="eventsList" class="events-list">
+        <!-- Event items will be dynamically injected here -->
+      </ul>
+    </aside>
+
+    <!-- Map View -->
+    <section class="map-view">
+      <div id="map" class="map-container"></div>
+      
+      <!-- Event Info Panel (Over Map) -->
+      <div id="eventPanel" class="event-panel hidden">
+        <div class="panel-header">
+          <h3 id="panelUser"></h3>
+          <span id="panelStatus" class="badge"></span>
+        </div>
+        <div class="panel-body">
+          <p><strong>Inicio:</strong> <span id="panelStart"></span></p>
+          <p><strong>Fin:</strong> <span id="panelEnd"></span></p>
+          <p><strong>Actualizaciones de Ubicación:</strong> <span id="panelTicks"></span></p>
+        </div>
+        <div class="panel-actions">
+           <button id="resolveEventBtn" class="btn danger outline hidden">Marcar Resuelta</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Main JS -->
+  <script src="/app.js"></script>
+</body>
+</html>

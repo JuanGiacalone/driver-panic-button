@@ -1,0 +1,67 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #ffffff;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 15px 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  background-color: #1e1e1e;
+  transition: background-color 0.3s ease;
+}
+
+.banner h1 {
+  margin: 0 0 5px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.banner p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.banner.active {
+  background-color: #dc2626; /* Red for panic */
+  color: white;
+}
+
+.banner.resolved {
+  background-color: #16a34a; /* Green for resolved */
+  color: white;
+}
+
+.banner.expired {
+  background-color: #4b5563; /* Gray for expired */
+  color: white;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Leaflet dark mode tweaks */
+.leaflet-layer,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out,
+.leaflet-control-attribution {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}

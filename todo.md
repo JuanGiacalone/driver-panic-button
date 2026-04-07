@@ -1,8 +1,6 @@
 # Driver Panic Button - TODO
 
 ## Authentication
-- [x] Implement login screen with OAuth
-- [x] Integrate with server OAuth authentication
 - [x] Add auto-login on app start if session exists
 - [x] Add logout functionality
 
@@ -69,17 +67,6 @@
 - [x] Implement loading states
 - [x] Add error handling and user feedback
 - [x] Test one-handed usage patterns
-
-## Testing & Validation
-- [ ] Test authentication flow
-- [ ] Test contact CRUD operations
-- [ ] Test panic button trigger
-- [ ] Test SMS/WhatsApp sending
-- [ ] Test Bluetooth pairing and trigger
-- [ ] Test background operation
-- [ ] Test location permissions
-- [ ] Test with no internet connection
-
 
 
 ## Additional Implementation Details

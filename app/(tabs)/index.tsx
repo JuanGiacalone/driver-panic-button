@@ -11,6 +11,7 @@ import { getContacts } from "@/lib/storage";
 import { getSettings } from "@/lib/storage";
 import { sendAlertsToContacts } from "@/lib/alert-service";
 import { getCurrentLocation } from "@/lib/location-service";
+import { triggerPanicEvent, resolvePanicEvent, getActivePanicEvent } from "@/lib/panic-service";
 import type { EmergencyContact } from "@/types";
 
 export default function HomeScreen() {
@@ -22,14 +23,21 @@ export default function HomeScreen() {
   const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  const [activePanicId, setActivePanicId] = useState<string | null>(null);
 
   // Reload contacts and check permissions when screen is focused
   useFocusEffect(
     useCallback(() => {
       loadContacts();
       checkPermissions();
+      checkActivePanic();
     }, [])
   );
+
+  const checkActivePanic = async () => {
+    const eventId = await getActivePanicEvent();
+    setActivePanicId(eventId);
+  };
 
   // Subscribe to Bluetooth button press events
   useEffect(() => {
@@ -107,23 +115,50 @@ export default function HomeScreen() {
     try {
       const location = await getCurrentLocation();
       const settings = await getSettings();
-      const results = await sendAlertsToContacts(
-        contacts,
-        settings.alertMessage,
-        location
-      );
+      
+      // Trigger backend API to start location tracking
+      let backendSuccess = false;
+      try {
+        const result = await triggerPanicEvent(location.latitude, location.longitude);
+        setActivePanicId(result.eventId);
+        
+        // FUTURE INTEGRATION: Now we have the URL and message available to send via native SMS if we want to
+        console.log("Panic triggered! Ready for future SMS routing:");
+        console.log(`URL: ${result.trackingUrl}`);
+        console.log(`Message: ${result.customMessage}`);
+        
+        backendSuccess = true;
+      } catch (backendError) {
+        console.warn("Backend trigger failed. Proceeding with SMS/WhatsApp alerts.", backendError);
+      }
 
-      const failedCount = results.filter((r) => !r.success).length;
-
-      if (failedCount > 0) {
-        Alert.alert(
-          "Éxito Parcial",
-          `Alerta enviada a ${results.length - failedCount} de ${results.length} contactos.`,
-          [{ text: "OK" }]
-        );
-      } else {
+      if (backendSuccess) {
+        // Normal Operation: Backend is tracking.
         setShowSuccessModal(true);
         setTimeout(() => setShowSuccessModal(false), 3000);
+      } else {
+        // Offline Failsafe: Native SMS
+        const results = await sendAlertsToContacts(
+          contacts,
+          settings.alertMessage,
+          location
+        );
+
+        const failedCount = results.filter((r) => !r.success).length;
+
+        if (failedCount > 0) {
+          Alert.alert(
+            "Respaldo: Éxito Parcial",
+            `SMS enviado a ${results.length - failedCount} de ${results.length} contactos.`,
+            [{ text: "OK" }]
+          );
+        } else {
+          Alert.alert(
+            "Modo Sin Conexión",
+            "No detectamos señal de internet. Hemos enviado alertas de pánico SMS a tus contactos como respaldo.",
+            [{ text: "OK" }]
+          );
+        }
       }
     } catch (error) {
       Alert.alert(
@@ -134,6 +169,24 @@ export default function HomeScreen() {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleResolvePanic = async () => {
+    Alert.alert(
+      "Cancelar Alerta",
+      "¿Estás seguro de que quieres cancelar la alerta de pánico y detener el rastreo de ubicación?",
+      [
+        { text: "No", style: "cancel" },
+        { 
+          text: "Sí, cancelar", 
+          style: "destructive",
+          onPress: async () => {
+            await resolvePanicEvent();
+            setActivePanicId(null);
+          }
+        }
+      ]
+    );
   };
 
   useEffect(() => {
@@ -184,7 +237,7 @@ export default function HomeScreen() {
             onPress={handlePanicPress}
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
-            disabled={!canUsePanicButton || isSending}
+            disabled={!canUsePanicButton || isSending || !!activePanicId}
             activeOpacity={0.8}
             style={{
               width: 200,
@@ -192,9 +245,11 @@ export default function HomeScreen() {
               borderRadius: 100,
               backgroundColor: !canUsePanicButton
                 ? colors.muted
-                : isPressed
+                : activePanicId
                   ? "#991B1B"
-                  : colors.primary,
+                  : isPressed
+                    ? "#991B1B"
+                    : colors.primary,
               justifyContent: "center",
               alignItems: "center",
               transform: [{ scale: isPressed ? 0.95 : 1 }],
@@ -203,28 +258,43 @@ export default function HomeScreen() {
               shadowOpacity: 0.3,
               shadowRadius: 8,
               elevation: 8,
+              borderWidth: activePanicId ? 6 : 0,
+              borderColor: activePanicId ? "#fca5a5" : "transparent"
             }}
           >
             <Text
               style={{
-                fontSize: 48,
+                fontSize: activePanicId ? 28 : 48,
                 fontWeight: "bold",
                 color: "white",
+                textAlign: "center"
               }}
             >
-              {isSending ? "..." : "SOS"}
+              {isSending ? "..." : (activePanicId ? "Alerta\nActiva" : "SOS")}
             </Text>
           </TouchableOpacity>
 
-          <Text className="text-center text-muted mt-6 text-base">
-            {!canUsePanicButton
-              ? contacts.length === 0
-                ? "Agrega contactos de emergencia para activar"
-                : "Otorga permiso de ubicación para activar"
-              : bluetooth.connectedDevice
-                ? "Toca o presiona el botón Bluetooth"
-                : "Toca para enviar alerta de emergencia"}
-          </Text>
+          {activePanicId ? (
+            <TouchableOpacity
+              onPress={handleResolvePanic}
+              className="mt-6 px-6 py-3 border rounded-xl"
+              style={{ borderColor: colors.error, backgroundColor: colors.surface }}
+            >
+              <Text style={{ color: colors.error }} className="font-semibold text-base">
+                Cancelar Alerta
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <Text className="text-center text-muted mt-6 text-base">
+              {!canUsePanicButton
+                ? contacts.length === 0
+                  ? "Agrega contactos de emergencia para activar"
+                  : "Otorga permiso de ubicación para activar"
+                : bluetooth.connectedDevice
+                  ? "Toca o presiona el botón Bluetooth"
+                  : "Toca para enviar alerta de emergencia"}
+            </Text>
+          )}
         </View>
 
         {/* Quick Actions */}
